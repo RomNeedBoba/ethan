@@ -68,44 +68,33 @@ const AudioPlayer = ({ audioUrl }) => {
   return (
     <div className="ap">
 
-      {/* Title */}
-      <div className="ap-meta">
-        <p className="ap-meta-title">Generated Speech</p>
-        <p className="ap-meta-dur">{formatTime(duration)}</p>
+      {/* Cover — animated waveform */}
+      <div className="ap-cover">
+        <div className={`ap-bars${isPlaying ? '' : ' paused'}`}>
+          {[...Array(7)].map((_, i) => (
+            <div key={i} className="ap-bar-item" />
+          ))}
+        </div>
       </div>
 
-      {/* Centered play button */}
-      <div className="ap-center">
-        <button
-          className="ap-play"
-          onClick={togglePlayPause}
-          aria-label={isPlaying ? 'Pause' : 'Play'}
-        >
-          {isPlaying ? (
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-              <rect x="4" y="3" width="4" height="14" rx="1" />
-              <rect x="12" y="3" width="4" height="14" rx="1" />
-            </svg>
-          ) : (
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-            </svg>
-          )}
-        </button>
+      {/* Track info */}
+      <div className="ap-info">
+        <p className="ap-info-title">Generated Speech</p>
+        <p className="ap-info-sub">{formatTime(duration)}</p>
       </div>
 
       {/* Seek bar */}
       <div className="ap-seek-row">
         <span className="ap-time">{formatTime(currentTime)}</span>
-        <div className="ap-bar" onClick={handleSeek}>
-          <div className="ap-fill" style={{ width: `${progressPercent}%` }} />
+        <div className="ap-bar-track" onClick={handleSeek}>
+          <div className="ap-bar-fill" style={{ width: `${progressPercent}%` }} />
         </div>
         <span className="ap-time">{formatTime(duration)}</span>
       </div>
 
-      {/* Bottom controls */}
-      <div className="ap-btm">
-        <div className="ap-vol">
+      {/* Controls — volume | play | download */}
+      <div className="ap-ctrl-row">
+        <div className="ap-vol-wrap">
           <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
             <path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217z" />
           </svg>
@@ -121,24 +110,44 @@ const AudioPlayer = ({ audioUrl }) => {
           />
         </div>
 
-        <div className="ap-speeds">
-          {[0.75, 1, 1.25, 1.5].map((speed) => (
-            <button
-              key={speed}
-              className={`ap-spd${playbackSpeed === speed ? ' on' : ''}`}
-              onClick={() => handleSpeedChange(speed)}
-              aria-pressed={playbackSpeed === speed}
-            >
-              {speed}×
-            </button>
-          ))}
-        </div>
-
-        <button className="ap-dl" onClick={downloadAudio} title="Download">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
+        <button
+          className="ap-play"
+          onClick={togglePlayPause}
+          aria-label={isPlaying ? 'Pause' : 'Play'}
+        >
+          {isPlaying ? (
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <rect x="4" y="3" width="4" height="14" rx="1" />
+              <rect x="12" y="3" width="4" height="14" rx="1" />
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+            </svg>
+          )}
         </button>
+
+        <div className="ap-dl-wrap">
+          <button className="ap-dl" onClick={downloadAudio} title="Download">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Speed pills */}
+      <div className="ap-speeds">
+        {[0.75, 1, 1.25, 1.5].map((speed) => (
+          <button
+            key={speed}
+            className={`ap-spd${playbackSpeed === speed ? ' on' : ''}`}
+            onClick={() => handleSpeedChange(speed)}
+            aria-pressed={playbackSpeed === speed}
+          >
+            {speed}×
+          </button>
+        ))}
       </div>
 
       <audio
