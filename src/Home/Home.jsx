@@ -4,6 +4,9 @@ import AudioPlayer from "../components/AudioPlayer";
 import { startAudioGeneration, checkAudioStatus } from "../api/ttsApi";
 import "./Home.css";
 
+// MUST match your Cloudflare tunnel base (no /api here)
+const PUBLIC_BASE = "https://revenue-fellowship-amend-cultures.trycloudflare.com";
+
 export default function Home() {
   const [text, setText] = useState("");
   const [model, setModel] = useState("khmer-cambodia");
@@ -12,26 +15,6 @@ export default function Home() {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
-
-  // Your public base (derived from your API base so you only change it in one place)
-  const API_BASE_URL = "https://revenue-fellowship-amend-cultures.trycloudflare.com/api";
-  const PUBLIC_BASE = API_BASE_URL.replace(/\/api\/?$/, "");
-
-  const normalizeAudioUrl = (url) => {
-    if (!url) return url;
-
-    // Backend returns absolute localhost URL (only works on server) -> rewrite to public URL
-    if (url.startsWith("http://127.0.0.1:8000")) {
-      return url.replace("http://127.0.0.1:8000", PUBLIC_BASE);
-    }
-
-    // Backend returns relative audio path -> prefix with public base
-    if (url.startsWith("/audio/")) {
-      return `${PUBLIC_BASE}${url}`;
-    }
-
-    return url;
-  };
 
   const handleClearText = () => {
     setText("");
@@ -58,26 +41,29 @@ export default function Home() {
     try {
       console.log("1. Sending text to backend...");
 
-      // still uses your api/ttsApi functions
       const taskId = await startAudioGeneration(text, model, voice);
 
-      let isDone = false;
-      while (!isDone) {
+      while (true) {
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         const statusData = await checkAudioStatus(taskId);
 
         if (statusData.status === "completed") {
-          isDone = true;
+          // backend returns: http://127.0.0.1:8000/audio/xxxx.wav
+          const raw = statusData?.data?.stage4_audio_url;
 
-          // IMPORTANT: rewrite localhost audio URL to public tunnel URL
-          const rawUrl = statusData?.data?.stage4_audio_url;
-          const finalAudioUrl = normalizeAudioUrl(rawUrl);
+          // FIX: rewrite localhost -> public tunnel URL
+          const finalAudioUrl = raw
+            ? raw.replace("http://127.0.0.1:8000", PUBLIC_BASE)
+            : null;
 
           setAudioUrl(finalAudioUrl);
-        } else if (statusData.status === "failed") {
-          isDone = true;
+          break;
+        }
+
+        if (statusData.status === "failed") {
           alert("Failed to generate audio. Please try again.");
+          break;
         }
       }
     } catch (error) {
@@ -130,7 +116,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Premium Audio Player */}
         {audioUrl && <AudioPlayer audioUrl={audioUrl} />}
 
         <div className="home-actions">
@@ -143,28 +128,7 @@ export default function Home() {
               disabled={isGenerating}
               title="Clear text"
             >
-              <svg
-                className="refresh-icon"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M21 2v6h-6" strokeLinecap="round" strokeLinejoin="round" />
-                <path
-                  d="M3 12a9 9 0 0 1 15-6.7L21 8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path d="M3 22v-6h6" strokeLinecap="round" strokeLinejoin="round" />
-                <path
-                  d="M21 12a9 9 0 0 1-15 6.7L3 16"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              Clear
             </button>
 
             <button
@@ -172,29 +136,7 @@ export default function Home() {
               disabled={text.trim().length === 0 || isGenerating}
               onClick={handleGenerateSpeech}
             >
-              {isGenerating ? (
-                <>
-                  <svg
-                    className="spinner-icon"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    style={{
-                      animation: "spin 1s linear infinite",
-                      marginRight: "8px",
-                    }}
-                  >
-                    <circle cx="12" cy="12" r="10" strokeOpacity="0.25"></circle>
-                    <path d="M12 2a10 10 0 0 1 10 10"></path>
-                  </svg>
-                  Synthesizing Speech...
-                </>
-              ) : (
-                "Generate Speech"
-              )}
+              {isGenerating ? "Synthesizing Speech..." : "Generate Speech"}
             </button>
           </div>
         </div>
