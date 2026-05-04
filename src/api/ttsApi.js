@@ -1,5 +1,5 @@
 // Pointing to your Node.js Proxy
-const API_BASE_URL = "http://119.13.157.251/api";
+const API_BASE_URL = "https://meals-discussion-forests-crawford.trycloudflare.com/api";
 
 export const startAudioGeneration = async (text, model, voice) => {
   const response = await fetch(`${API_BASE_URL}/generate`, {
