@@ -1,92 +1,54 @@
 /*
   AudioPlayer.css
-  Uses the same CSS variables as home.css — no extra vars needed.
-  Just make sure home.css (or your global stylesheet) defines:
-    --bg, --bg-surface, --bg-hover, --border,
-    --text-primary, --text-secondary, --accent, --shadow
+  No card, no cover — sits inline below the textarea inside .home-content.
+  Width is inherited from .home-content (max-width: 900px) automatically.
+  All vars come from home.css — nothing new added.
 */
 
-/* ─── Container ───────────────────────────────────────────────── */
+/* ─── Container — matches .textarea-container geometry ───────── */
 .ap {
+  width: 100%;
+  box-sizing: border-box;
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px 20px 20px;
-  max-width: 340px;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  letter-spacing: 0.18px;
+  border-radius: 8px;          /* same as .textarea-container */
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 12px;
 }
 
-/* ─── Cover art area ──────────────────────────────────────────── */
-.ap-cover {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 12px;
-  background-color: var(--bg-hover);
+/* ─── Top row: label + download ──────────────────────────────── */
+.ap-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ap-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);  /* same as home labels */
+  margin-left: 2px;
+}
+
+.ap-dl {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: transparent;
   border: 1px solid var(--border);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
-  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
 }
 
-/* Animated waveform bars */
-.ap-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 48px;
-}
-
-.ap-bar-item {
-  width: 5px;
-  border-radius: 3px;
-  background: var(--accent);
-  opacity: 0.7;
-  animation: ap-bounce 1.2s ease-in-out infinite;
-}
-
-.ap-bar-item:nth-child(1) { height: 20px; animation-delay: 0s; }
-.ap-bar-item:nth-child(2) { height: 36px; animation-delay: 0.15s; }
-.ap-bar-item:nth-child(3) { height: 48px; animation-delay: 0.3s; }
-.ap-bar-item:nth-child(4) { height: 28px; animation-delay: 0.45s; }
-.ap-bar-item:nth-child(5) { height: 40px; animation-delay: 0.6s; }
-.ap-bar-item:nth-child(6) { height: 18px; animation-delay: 0.75s; }
-.ap-bar-item:nth-child(7) { height: 32px; animation-delay: 0.9s; }
-
-@keyframes ap-bounce {
-  0%, 100% { transform: scaleY(0.4); opacity: 0.4; }
-  50%       { transform: scaleY(1);   opacity: 0.85; }
-}
-
-.ap-bars.paused .ap-bar-item {
-  animation-play-state: paused;
-  transform: scaleY(0.4);
-  opacity: 0.3;
-}
-
-/* ─── Track info ──────────────────────────────────────────────── */
-.ap-info {
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.ap-info-title {
-  font-size: 15px;
-  font-weight: 500;
+.ap-dl:hover {
+  border-color: var(--text-secondary);
   color: var(--text-primary);
-  margin: 0 0 3px;
-}
-
-.ap-info-sub {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin: 0;
-  font-variant-numeric: tabular-nums;
 }
 
 /* ─── Seek bar ────────────────────────────────────────────────── */
@@ -94,13 +56,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
 }
 
 .ap-time {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-secondary);
-  min-width: 30px;
+  min-width: 34px;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
@@ -127,12 +88,11 @@
   pointer-events: none;
 }
 
-/* ─── Controls row — volume | play | download ─────────────────── */
-.ap-ctrl-row {
+/* ─── Bottom row: volume | play | speeds ─────────────────────── */
+.ap-btm {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
+  gap: 12px;
 }
 
 /* Volume */
@@ -141,11 +101,10 @@
   align-items: center;
   gap: 6px;
   color: var(--text-secondary);
-  flex: 1;
 }
 
 .ap-vol-input {
-  width: 60px;
+  width: 70px;
   height: 3px;
   appearance: none;
   -webkit-appearance: none;
@@ -174,10 +133,10 @@
   cursor: pointer;
 }
 
-/* Play button — big, centered, Spotify-style */
+/* Play button — same accent as .generate-btn */
 .ap-play {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background-color: var(--accent);
   border: none;
@@ -186,49 +145,23 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s, filter 0.2s;
+  transition: filter 0.2s, transform 0.1s;
   flex-shrink: 0;
 }
 
 .ap-play:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.1);     /* same as .generate-btn:hover */
 }
 
 .ap-play:active {
-  transform: scale(0.96);
+  transform: scale(0.98);      /* same as .generate-btn:active */
 }
 
-/* Download */
-.ap-dl-wrap {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.ap-dl {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background-color: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-}
-
-.ap-dl:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* ─── Speed pills ─────────────────────────────────────────────── */
+/* Speed pills */
 .ap-speeds {
   display: flex;
-  justify-content: center;
-  gap: 6px;
+  gap: 5px;
+  margin-left: auto;
 }
 
 .ap-spd {
@@ -255,18 +188,17 @@
   color: var(--accent);
 }
 
-/* ─── Responsive ──────────────────────────────────────────────── */
+/* ─── Responsive — follows home.css breakpoint ────────────────── */
 @media (max-width: 640px) {
   .ap {
-    padding: 18px 16px 16px;
+    padding: 14px;
   }
 
   .ap-vol-input {
-    width: 50px;
+    width: 55px;
   }
 
   .ap-spd {
     padding: 4px 8px;
-    font-size: 11px;
   }
 }
