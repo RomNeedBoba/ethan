@@ -1,143 +1,159 @@
-/* ─── Audio Player — matches your :root design system ─────────── */
+/*
+  AudioPlayer.css
+  Uses the same CSS variables as home.css — no extra vars needed.
+  Just make sure home.css (or your global stylesheet) defines:
+    --bg, --bg-surface, --bg-hover, --border,
+    --text-primary, --text-secondary, --accent, --shadow
+*/
 
+/* ─── Container ───────────────────────────────────────────────── */
 .ap {
-  --ap-bg: #fff;
-  --ap-border: #e5e4e7;
-  --ap-text: #6b6375;
-  --ap-text-h: #08060d;
-  --ap-accent: #aa3bff;
-  --ap-accent-bg: rgba(170, 59, 255, 0.1);
-  --ap-accent-border: rgba(170, 59, 255, 0.5);
-
-  background: var(--ap-bg);
-  border: 1px solid var(--ap-border);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 24px 20px;
-  max-width: 460px;
+  padding: 24px 20px 20px;
+  max-width: 340px;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
   letter-spacing: 0.18px;
-}
-
-@media (prefers-color-scheme: dark) {
-  .ap {
-    --ap-bg: #16171d;
-    --ap-border: #2e303a;
-    --ap-text: #9ca3af;
-    --ap-text-h: #f3f4f6;
-    --ap-accent: #c084fc;
-    --ap-accent-bg: rgba(192, 132, 252, 0.15);
-    --ap-accent-border: rgba(192, 132, 252, 0.5);
-  }
-}
-
-/* Meta */
-.ap-meta {
-  text-align: center;
-  margin-bottom: 22px;
-}
-
-.ap-meta-title {
-  margin: 0 0 3px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ap-text-h);
-}
-
-.ap-meta-dur {
-  margin: 0;
-  font-size: 11px;
-  color: var(--ap-text);
-}
-
-/* Centered play button */
-.ap-center {
   display: flex;
-  justify-content: center;
-  margin-bottom: 22px;
+  flex-direction: column;
+  gap: 0;
 }
 
-.ap-play {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--ap-accent);
-  border: none;
-  color: #fff;
+/* ─── Cover art area ──────────────────────────────────────────── */
+.ap-cover {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  background-color: var(--bg-hover);
+  border: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s;
+  margin-bottom: 20px;
+  overflow: hidden;
 }
 
-.ap-play:hover {
-  opacity: 0.88;
-  transform: scale(1.05);
+/* Animated waveform bars */
+.ap-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 48px;
 }
 
-.ap-play:active {
-  transform: scale(0.96);
+.ap-bar-item {
+  width: 5px;
+  border-radius: 3px;
+  background: var(--accent);
+  opacity: 0.7;
+  animation: ap-bounce 1.2s ease-in-out infinite;
 }
 
-/* Seek row */
+.ap-bar-item:nth-child(1) { height: 20px; animation-delay: 0s; }
+.ap-bar-item:nth-child(2) { height: 36px; animation-delay: 0.15s; }
+.ap-bar-item:nth-child(3) { height: 48px; animation-delay: 0.3s; }
+.ap-bar-item:nth-child(4) { height: 28px; animation-delay: 0.45s; }
+.ap-bar-item:nth-child(5) { height: 40px; animation-delay: 0.6s; }
+.ap-bar-item:nth-child(6) { height: 18px; animation-delay: 0.75s; }
+.ap-bar-item:nth-child(7) { height: 32px; animation-delay: 0.9s; }
+
+@keyframes ap-bounce {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.4; }
+  50%       { transform: scaleY(1);   opacity: 0.85; }
+}
+
+.ap-bars.paused .ap-bar-item {
+  animation-play-state: paused;
+  transform: scaleY(0.4);
+  opacity: 0.3;
+}
+
+/* ─── Track info ──────────────────────────────────────────────── */
+.ap-info {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.ap-info-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 3px;
+}
+
+.ap-info-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Seek bar ────────────────────────────────────────────────── */
 .ap-seek-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .ap-time {
   font-size: 11px;
-  color: var(--ap-text);
-  min-width: 32px;
+  color: var(--text-secondary);
+  min-width: 30px;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
-.ap-bar {
+.ap-bar-track {
   flex: 1;
   height: 4px;
-  background: var(--ap-border);
+  background-color: var(--border);
   border-radius: 4px;
   cursor: pointer;
   overflow: hidden;
+  transition: height 0.15s;
 }
 
-.ap-fill {
+.ap-bar-track:hover {
+  height: 6px;
+}
+
+.ap-bar-fill {
   height: 100%;
-  background: var(--ap-accent);
+  background-color: var(--accent);
   border-radius: 4px;
   transition: width 0.1s linear;
   pointer-events: none;
 }
 
-/* Bottom controls */
-.ap-btm {
+/* ─── Controls row — volume | play | download ─────────────────── */
+.ap-ctrl-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-top: 16px;
-  border-top: 1px solid var(--ap-border);
+  justify-content: space-between;
+  margin-bottom: 18px;
 }
 
-.ap-vol {
+/* Volume */
+.ap-vol-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--ap-text);
+  gap: 6px;
+  color: var(--text-secondary);
+  flex: 1;
 }
 
 .ap-vol-input {
-  width: 72px;
+  width: 60px;
   height: 3px;
   appearance: none;
   -webkit-appearance: none;
-  background: var(--ap-border);
+  background-color: var(--border);
   border-radius: 3px;
   cursor: pointer;
   outline: none;
-  accent-color: var(--ap-accent);
+  accent-color: var(--accent);
 }
 
 .ap-vol-input::-webkit-slider-thumb {
@@ -145,7 +161,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--ap-accent);
+  background-color: var(--accent);
   cursor: pointer;
 }
 
@@ -153,71 +169,104 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--ap-accent);
+  background-color: var(--accent);
   border: none;
   cursor: pointer;
 }
 
-/* Speed buttons */
-.ap-speeds {
-  display: flex;
-  gap: 5px;
-  margin-left: auto;
-}
-
-.ap-spd {
-  padding: 4px 9px;
-  border-radius: 999px;
-  border: 1px solid var(--ap-border);
-  background: transparent;
-  color: var(--ap-text);
-  font-size: 11px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-
-.ap-spd:hover {
-  border-color: var(--ap-accent-border);
-  color: var(--ap-text-h);
-}
-
-.ap-spd.on {
-  background: var(--ap-accent-bg);
-  border-color: var(--ap-accent-border);
-  color: var(--ap-accent);
-}
-
-/* Download button */
-.ap-dl {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid var(--ap-border);
-  color: var(--ap-text);
+/* Play button — big, centered, Spotify-style */
+.ap-play {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--accent);
+  border: none;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: opacity 0.2s, transform 0.1s, filter 0.2s;
+  flex-shrink: 0;
+}
+
+.ap-play:hover {
+  filter: brightness(1.1);
+}
+
+.ap-play:active {
+  transform: scale(0.96);
+}
+
+/* Download */
+.ap-dl-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ap-dl {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
 }
 
 .ap-dl:hover {
-  border-color: var(--ap-accent-border);
-  color: var(--ap-accent);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
-/* Responsive */
-@media (max-width: 420px) {
+/* ─── Speed pills ─────────────────────────────────────────────── */
+.ap-speeds {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.ap-spd {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+  font-family: inherit;
+}
+
+.ap-spd:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.ap-spd.on {
+  background-color: var(--accent-bg, rgba(170, 59, 255, 0.1));
+  border-color: var(--accent-border, rgba(170, 59, 255, 0.5));
+  color: var(--accent);
+}
+
+/* ─── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
   .ap {
-    padding: 18px 16px;
+    padding: 18px 16px 16px;
   }
+
   .ap-vol-input {
-    width: 55px;
+    width: 50px;
   }
+
   .ap-spd {
-    padding: 4px 7px;
+    padding: 4px 8px;
+    font-size: 11px;
   }
 }
