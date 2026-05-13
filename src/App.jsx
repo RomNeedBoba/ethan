@@ -3,6 +3,10 @@ import { ThemeProvider } from "./ThemeContext.jsx";
 import Topbar from "./components/TopBar/Topbar.jsx";
 import Home from "./Home/Home.jsx";
 
+/**
+ * Main App Component
+ * Wraps the application with theme provider and renders top navigation + home page
+ */
 export default function App() {
   const [language, setLanguage] = useState("km");
 
@@ -10,7 +14,7 @@ export default function App() {
     <ThemeProvider>
       <div className="app">
         <Topbar language={language} setLanguage={setLanguage} />
-        <Home language={language} />
+        <Home />
       </div>
     </ThemeProvider>
   );
