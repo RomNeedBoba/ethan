@@ -4,21 +4,23 @@ import AudioPlayer from "../components/AudioPlayer";
 import { startAudioGeneration, checkAudioStatus } from "../api/ttsApi";
 import "./Home.css";
 
-// MUST match your Cloudflare tunnel base (no /api here)
-const PUBLIC_BASE = "https://revenue-fellowship-amend-cultures.trycloudflare.com";
-
+/**
+ * Home Component - Main TTS Interface
+ * Handles text input, model/voice selection, and audio generation
+ */
 export default function Home() {
   const [text, setText] = useState("");
   const [model, setModel] = useState("khmer-cambodia");
   const [voice, setVoice] = useState("the-documentarian");
-  const maxLength = 500;
-
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
+  const [error, setError] = useState(null);
+  const maxLength = 5000;
 
   const handleClearText = () => {
     setText("");
     setAudioUrl(null);
+    setError(null);
   };
 
   const modelOptions = [
@@ -32,43 +34,65 @@ export default function Home() {
     { value: "the-news-anchor", label: "Story Telling", disabled: true },
   ];
 
+  /**
+   * Handles audio generation
+   * 1. Sends text to backend
+   * 2. Polls for completion status
+   * 3. Returns audio URL when ready
+   */
   const handleGenerateSpeech = async () => {
-    if (!text.trim()) return;
+    if (!text.trim()) {
+      setError("Please enter text to generate speech");
+      return;
+    }
 
     setIsGenerating(true);
     setAudioUrl(null);
+    setError(null);
 
     try {
-      console.log("1. Sending text to backend...");
+      console.log("📝 Sending text to backend...");
+      
+      // Step 1: Generate audio
+      const taskId = await startAudioGeneration(text);
+      console.log("✅ Task ID received:", taskId);
 
-      const taskId = await startAudioGeneration(text, model, voice);
+      // Step 2: Poll for completion (5s intervals, max 60 attempts = 5 minutes)
+      let attempts = 0;
+      const maxAttempts = 60;
 
-      while (true) {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+      while (attempts < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        attempts++;
 
+        console.log(`🔄 Status check attempt ${attempts}/${maxAttempts}...`);
         const statusData = await checkAudioStatus(taskId);
 
         if (statusData.status === "completed") {
-          // backend returns: http://127.0.0.1:8000/audio/xxxx.wav
-          const raw = statusData?.data?.stage4_audio_url;
-
-          // FIX: rewrite localhost -> public tunnel URL
-          const finalAudioUrl = raw
-            ? raw.replace("http://127.0.0.1:8000", PUBLIC_BASE)
-            : null;
-
-          setAudioUrl(finalAudioUrl);
-          break;
+          const audioUrlFromServer = statusData?.data?.stage4_audio_url;
+          
+          if (audioUrlFromServer) {
+            console.log("✅ Audio generated successfully!");
+            setAudioUrl(audioUrlFromServer);
+            break;
+          } else {
+            throw new Error("No audio URL received from server");
+          }
         }
 
         if (statusData.status === "failed") {
-          alert("Failed to generate audio. Please try again.");
-          break;
+          throw new Error("Audio generation failed on backend");
         }
+
+        // Status is still "processing", continue polling
       }
-    } catch (error) {
-      console.error("API Error:", error);
-      alert("Error connecting to the backend.");
+
+      if (attempts >= maxAttempts) {
+        throw new Error("Audio generation timed out (5+ minutes)");
+      }
+    } catch (err) {
+      console.error("❌ Audio generation error:", err.message);
+      setError(err.message || "Failed to generate audio. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -77,6 +101,7 @@ export default function Home() {
   return (
     <main className="home-wrapper">
       <div className="home-content">
+        {/* Model & Voice Selection */}
         <div className="home-controls">
           <div className="home-control-group">
             <label htmlFor="model-select">AI Model</label>
@@ -99,6 +124,7 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Text Input Section */}
         <div className="home-input-section">
           <label htmlFor="tts-input">Text to Speech</label>
           <div className="textarea-container">
@@ -109,36 +135,44 @@ export default function Home() {
               placeholder="Type Khmer text here..."
               rows={8}
               disabled={isGenerating}
+              aria-label="Text input for speech synthesis"
             />
-            <div className="char-counter">
+            <div className="char-counter" aria-live="polite">
               {text.length} / {maxLength}
             </div>
           </div>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="error-message" role="alert">
+            ❌ {error}
+          </div>
+        )}
+
+        {/* Audio Player */}
         {audioUrl && <AudioPlayer audioUrl={audioUrl} />}
 
+        {/* Action Buttons */}
         <div className="home-actions">
-          <div className="actions-left"></div>
+          <button
+            className="icon-btn reset-btn"
+            onClick={handleClearText}
+            disabled={isGenerating}
+            title="Clear text and audio"
+            aria-label="Clear text"
+          >
+            Clear
+          </button>
 
-          <div className="actions-right">
-            <button
-              className="icon-btn reset-btn"
-              onClick={handleClearText}
-              disabled={isGenerating}
-              title="Clear text"
-            >
-              Clear
-            </button>
-
-            <button
-              className={`generate-btn ${isGenerating ? "generating" : ""}`}
-              disabled={text.trim().length === 0 || isGenerating}
-              onClick={handleGenerateSpeech}
-            >
-              {isGenerating ? "Synthesizing Speech..." : "Generate Speech"}
-            </button>
-          </div>
+          <button
+            className={`generate-btn ${isGenerating ? "generating" : ""}`}
+            disabled={text.trim().length === 0 || isGenerating}
+            onClick={handleGenerateSpeech}
+            aria-label={isGenerating ? "Generating speech" : "Generate speech"}
+          >
+            {isGenerating ? "Synthesizing Speech..." : "Generate Speech"}
+          </button>
         </div>
       </div>
     </main>
