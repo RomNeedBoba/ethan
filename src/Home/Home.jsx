@@ -80,7 +80,10 @@ export default function Home() {
           const finalAudioUrl = normalizeAudioUrl(raw);
 
           if (!finalAudioUrl) {
-            alert("Audio is ready but the URL is not playable in this environment.");
+            alert(
+              "Audio is ready, but playback was blocked because the returned URL is insecure or invalid for this HTTPS page. " +
+              "Please verify backend public URL configuration."
+            );
             break;
           }
 
