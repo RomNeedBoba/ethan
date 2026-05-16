@@ -35,6 +35,38 @@ export default function Home() {
   ];
 
   /**
+   * Extracts audio URL from response data
+   * Tries multiple possible field names
+   */
+  const extractAudioUrl = (data) => {
+    if (!data) return null;
+    
+    // Try common audio URL field names
+    const audioUrlFields = [
+      'stage4_audio_url',
+      'audio_url',
+      'url',
+      'audioUrl',
+      'audio',
+      'file_url',
+      'file'
+    ];
+    
+    for (const field of audioUrlFields) {
+      if (data[field]) {
+        return data[field];
+      }
+    }
+    
+    // If data itself is a string, assume it's the URL
+    if (typeof data === 'string') {
+      return data;
+    }
+    
+    return null;
+  };
+
+  /**
    * Handles audio generation
    * 1. Sends text to backend
    * 2. Polls for completion status
@@ -69,13 +101,17 @@ export default function Home() {
         const statusData = await checkAudioStatus(taskId);
 
         if (statusData.status === "completed") {
-          const audioUrlFromServer = statusData?.data?.stage4_audio_url;
+          // Try to extract audio URL from various possible locations
+          const audioUrlFromServer = extractAudioUrl(statusData?.data) || 
+                                    extractAudioUrl(statusData);
           
           if (audioUrlFromServer) {
             console.log("✅ Audio generated successfully!");
+            console.log("📁 Audio URL:", audioUrlFromServer);
             setAudioUrl(audioUrlFromServer);
             break;
           } else {
+            console.warn("⚠️ Completed but no audio URL found. Response:", statusData);
             throw new Error("No audio URL received from server");
           }
         }
