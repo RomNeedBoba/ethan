@@ -4,8 +4,35 @@ import AudioPlayer from "../components/AudioPlayer";
 import { startAudioGeneration, checkAudioStatus } from "../api/ttsApi";
 import "./Home.css";
 
-// MUST match your Cloudflare tunnel base (no /api here)
-const PUBLIC_BASE = "https://revenue-fellowship-amend-cultures.trycloudflare.com";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const LOCALHOST_AUDIO_PATTERN = /^http:\/\/(?:127\.0\.0\.1|localhost|::1)(?::\d+)?/i;
+
+const getPublicAudioBase = () => {
+  if (!API_BASE_URL) return null;
+
+  try {
+    return new URL(API_BASE_URL).origin;
+  } catch {
+    return null;
+  }
+};
+
+const normalizeAudioUrl = (rawUrl) => {
+  if (!rawUrl || typeof rawUrl !== "string") return null;
+
+  const publicAudioBase = getPublicAudioBase();
+  const rewritten = LOCALHOST_AUDIO_PATTERN.test(rawUrl) && publicAudioBase
+    ? rawUrl.replace(LOCALHOST_AUDIO_PATTERN, publicAudioBase)
+    : rawUrl;
+
+  if (window.location.protocol === "https:" && rewritten.startsWith("http://")) {
+    console.error("Blocked insecure audio URL on HTTPS page:", rewritten);
+    return null;
+  }
+
+  return rewritten;
+};
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -49,13 +76,13 @@ export default function Home() {
         const statusData = await checkAudioStatus(taskId);
 
         if (statusData.status === "completed") {
-          // backend returns: http://127.0.0.1:8000/audio/xxxx.wav
           const raw = statusData?.data?.stage4_audio_url;
+          const finalAudioUrl = normalizeAudioUrl(raw);
 
-          // FIX: rewrite localhost -> public tunnel URL
-          const finalAudioUrl = raw
-            ? raw.replace("http://127.0.0.1:8000", PUBLIC_BASE)
-            : null;
+          if (!finalAudioUrl) {
+            alert("Audio is ready but the URL is not playable in this environment.");
+            break;
+          }
 
           setAudioUrl(finalAudioUrl);
           break;
