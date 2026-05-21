@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CustomSelect from "../components/CustomSelect";
 import AudioPlayer from "../components/AudioPlayer";
-import { startAudioGeneration, checkAudioStatus } from "../api/ttsApi";
+import { startAudioGeneration, startVoxCPMGeneration, checkAudioStatus } from "../api/ttsApi";
 import "./Home.css";
 
 /**
@@ -24,8 +24,8 @@ export default function Home() {
   };
 
   const modelOptions = [
-    { value: "khmer-cambodia", label: "Soriya" },
-    { value: "multilingual", label: "Sokkha", disabled: true },
+    { value: "khmer-cambodia", label: "Soriya" },   // VITS2
+    { value: "multilingual", label: "Sokkha" },     // VoxCPM
   ];
 
   const voiceOptions = [
@@ -84,9 +84,12 @@ export default function Home() {
 
     try {
       console.log("📝 Sending text to backend...");
-      
-      // Step 1: Generate audio
-      const taskId = await startAudioGeneration(text);
+
+      // Step 1: Generate audio — pick engine based on model selection
+      // khmer-cambodia (Soriya) => VITS2,  multilingual (Sokkha) => VoxCPM
+      const taskId = model === "multilingual"
+        ? await startVoxCPMGeneration(text)
+        : await startAudioGeneration(text);
       console.log("✅ Task ID received:", taskId);
 
       // Step 2: Poll for completion (5s intervals, max 60 attempts = 5 minutes)
