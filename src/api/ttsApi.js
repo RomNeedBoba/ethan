@@ -146,6 +146,62 @@ export const startAudioGeneration = async (text) => {
 };
 
 /**
+ * Starts VoxCPM audio generation. Same validation + auth + retry as VITS2,
+ * but hits /voxcpm/generate. cfg_value, inference_timesteps are optional;
+ * omitting them lets the backend use its defaults.
+ * @param {string} text - Text to convert to speech
+ * @returns {Promise<string>} - Task ID for tracking progress
+ */
+export const startVoxCPMGeneration = async (text) => {
+  try {
+    rateLimiter.enforceLimit();
+    const validatedText = validateText(text);
+
+    const data = await executeWithRetry(async () => {
+      const response = await fetch(`${API_BASE_URL}/voxcpm/generate`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ text: validatedText }),
+        signal: AbortSignal.timeout(10000),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const error = new Error(
+          errorData.message || `Failed to queue VoxCPM task (${response.status} ${response.statusText})`
+        );
+        error.status = response.status;
+
+        if (response.status === 401) {
+          error.message = "Authentication failed: Invalid or missing API key";
+        } else if (response.status === 403) {
+          error.message = "Authentication failed: Access denied";
+        }
+
+        throw error;
+      }
+
+      return await response.json();
+    }, "VoxCPM generation");
+
+    if (!data.task_id) {
+      throw new Error("No task ID received from server");
+    }
+
+    rateLimiter.recordRequest();
+
+    const status = rateLimiter.getStatus();
+    console.log("✅ VoxCPM generation started. Task ID:", data.task_id);
+    console.log(`📊 Rate limit: ${status.remainingRequests}/${status.maxRequests} requests remaining`);
+
+    return data.task_id;
+  } catch (error) {
+    console.error("❌ VoxCPM generation error:", error.message);
+    throw error;
+  }
+};
+
+/**
  * Checks audio generation status with validated task ID, authentication, and rate limiting
  * @param {string} taskId - Task ID to check
  * @returns {Promise<object>} - Status information
