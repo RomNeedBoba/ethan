@@ -1,7 +1,7 @@
-/* 
-i only compromise with raw css, i dont have time to research on tailwind, new comer may adjust later
+/*
+  Home.css — token-driven, no inline colors.
 */
-/* jsut keep it straight that  */
+
 .home-wrapper {
   display: flex;
   justify-content: center;
@@ -10,7 +10,7 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
   box-sizing: border-box;
   background-color: var(--bg);
   color: var(--text-primary);
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 52px);
 }
 
 .home-content {
@@ -21,7 +21,7 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
   gap: 24px;
 }
 
-/* --- Controls & Labels --- */
+/* Controls & Labels */
 .home-controls {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -43,7 +43,7 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
   font-weight: 500;
 }
 
-/* --- Custom Select Dropdown --- */
+/* Custom Select */
 .custom-select {
   position: relative;
   width: 100%;
@@ -63,7 +63,7 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
   font-weight: 500;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
 }
 
 .custom-select__trigger:hover {
@@ -73,11 +73,11 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
 
 .custom-select__trigger.is-open {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--shadow);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
 .custom-select__icon {
-  transition: transform 0.2s ease;
+  transition: transform 0.18s ease, color 0.15s;
   color: var(--text-secondary);
 }
 
@@ -94,15 +94,15 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 10px 25px var(--shadow);
+  box-shadow: 0 8px 24px var(--shadow);
   z-index: 100;
   overflow: hidden;
-  animation: dropdownFadeIn 0.2s ease;
+  animation: dropdownFadeIn 0.15s ease;
 }
 
 @keyframes dropdownFadeIn {
   from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .custom-select__option {
@@ -113,7 +113,7 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
   font-size: 14px;
   color: var(--text-primary);
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  transition: background-color 0.12s, color 0.12s;
 }
 
 .custom-select__option:hover {
@@ -126,20 +126,20 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
   font-weight: 600;
 }
 
-/* --- Input Area --- */
+/* Input Area */
 .textarea-container {
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   overflow: hidden;
 }
 
 .textarea-container:focus-within {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--shadow);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
 .textarea-container textarea {
@@ -150,7 +150,7 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
   padding: 16px;
   font-size: 16px;
   line-height: 1.6;
-  resize: none; 
+  resize: none;
   min-height: 250px;
   outline: none;
   box-sizing: border-box;
@@ -166,61 +166,46 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
   font-size: 13px;
   color: var(--text-secondary);
   text-align: left;
-  border-top: 1px solid transparent;
 }
 
-/* --- Bottom Actions --- */
+/* Bottom Actions */
 .home-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 8px;
-}
-
-.actions-right {
-  display: flex;
   gap: 12px;
-  align-items: center;
-  margin-left: auto;
 }
 
-/* Refresh / Reset Button */
+/* Reset button — same 44px height, 8px radius family */
 .icon-btn.reset-btn {
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
   color: var(--text-secondary);
-  width: 44px;
   height: 44px;
+  padding: 0 18px;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.icon-btn.reset-btn:hover {
+.icon-btn.reset-btn:hover:not(:disabled) {
   background-color: var(--bg-hover);
   border-color: var(--text-secondary);
   color: var(--text-primary);
 }
 
-.refresh-icon {
-  transition: transform 0.4s ease;
+.icon-btn.reset-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.icon-btn.reset-btn:hover .refresh-icon {
-  transform: rotate(90deg);
-}
-
-.icon-btn.reset-btn:active .refresh-icon {
-  transform: rotate(180deg);
-}
-
-/* Generate Button */
+/* Generate button — primary action, same shape family */
 .generate-btn {
-  background-color: var(--accent); 
-  color: #ffffff; /* Keeping text white on accent for contrast */
+  background-color: var(--accent);
+  color: var(--on-accent);
   border: none;
   border-radius: 8px;
   padding: 0 24px;
@@ -228,11 +213,11 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s, filter 0.2s;
+  transition: background-color 0.15s, transform 0.1s;
 }
 
 .generate-btn:hover:not(:disabled) {
-  filter: brightness(1.1); /* Slightly brighten the accent color on hover */
+  background-color: var(--accent-hover);
 }
 
 .generate-btn:active:not(:disabled) {
@@ -240,19 +225,23 @@ i only compromise with raw css, i dont have time to research on tailwind, new co
 }
 
 .generate-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* --- Responsive Design --- */
+/* Responsive */
 @media (max-width: 640px) {
   .home-controls {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
   .home-wrapper {
     padding: 24px 16px;
   }
+  .generate-btn {
+    flex: 1;
+  }
+  .icon-btn.reset-btn {
+    flex-shrink: 0;
+  }
 }
-

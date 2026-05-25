@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import CustomSelect from "../components/CustomSelect";
 import AudioPlayer from "../components/AudioPlayer";
 import { startAudioGeneration, startVoxCPMGeneration, checkAudioStatus } from "../api/ttsApi";
+import { useTranslation } from "../i18n/LanguageContext.jsx";
 import "./Home.css";
 
 /**
- * Home Component - Main TTS Interface
- * Handles text input, model/voice selection, and audio generation
+ * Home Component - Main TTS Interface.
+ * All visible strings come from useTranslation() so the UI reacts to the
+ * language picker in the topbar.
  */
 export default function Home() {
+  const { t } = useTranslation();
+
   const [text, setText] = useState("");
   const [model, setModel] = useState("khmer-cambodia");
   const [voice, setVoice] = useState("the-documentarian");
@@ -23,58 +27,49 @@ export default function Home() {
     setError(null);
   };
 
-  const modelOptions = [
-    { value: "khmer-cambodia", label: "Soriya" },   // VITS2
-    { value: "multilingual", label: "Sokkha" },     // VoxCPM
-  ];
+  // Rebuild option arrays whenever the language changes so labels stay localized.
+  const modelOptions = useMemo(
+    () => [
+      { value: "khmer-cambodia", label: "Soriya" }, // VITS2 - proper noun, not translated
+      { value: "multilingual", label: "Sokkha" },   // VoxCPM - proper noun, not translated
+    ],
+    []
+  );
 
-  const voiceOptions = [
-    { value: "the-documentarian", label: "Short Audio" },
-    { value: "the-storyteller", label: "AudioBook", disabled: true },
-    { value: "the-news-anchor", label: "Story Telling", disabled: true },
-  ];
+  const voiceOptions = useMemo(
+    () => [
+      { value: "the-documentarian", label: t("voice.shortAudio") },
+      { value: "the-storyteller", label: t("voice.audioBook"), disabled: true },
+      { value: "the-news-anchor", label: t("voice.storyTelling"), disabled: true },
+    ],
+    [t]
+  );
 
   /**
-   * Extracts audio URL from response data
-   * Tries multiple possible field names
+   * Extracts audio URL from response data. Tries multiple field names because
+   * the backend contract has shifted over time.
    */
   const extractAudioUrl = (data) => {
     if (!data) return null;
-    
-    // Try common audio URL field names
     const audioUrlFields = [
-      'stage4_audio_url',
-      'audio_url',
-      'url',
-      'audioUrl',
-      'audio',
-      'file_url',
-      'file'
+      "stage4_audio_url",
+      "audio_url",
+      "url",
+      "audioUrl",
+      "audio",
+      "file_url",
+      "file",
     ];
-    
     for (const field of audioUrlFields) {
-      if (data[field]) {
-        return data[field];
-      }
+      if (data[field]) return data[field];
     }
-    
-    // If data itself is a string, assume it's the URL
-    if (typeof data === 'string') {
-      return data;
-    }
-    
+    if (typeof data === "string") return data;
     return null;
   };
 
-  /**
-   * Handles audio generation
-   * 1. Sends text to backend
-   * 2. Polls for completion status
-   * 3. Returns audio URL when ready
-   */
   const handleGenerateSpeech = async () => {
     if (!text.trim()) {
-      setError("Please enter text to generate speech");
+      setError(t("error.empty"));
       return;
     }
 
@@ -85,14 +80,12 @@ export default function Home() {
     try {
       console.log("📝 Sending text to backend...");
 
-      // Step 1: Generate audio — pick engine based on model selection
-      // khmer-cambodia (Soriya) => VITS2,  multilingual (Sokkha) => VoxCPM
-      const taskId = model === "multilingual"
-        ? await startVoxCPMGeneration(text)
-        : await startAudioGeneration(text);
+      const taskId =
+        model === "multilingual"
+          ? await startVoxCPMGeneration(text)
+          : await startAudioGeneration(text);
       console.log("✅ Task ID received:", taskId);
 
-      // Step 2: Poll for completion (5s intervals, max 60 attempts = 5 minutes)
       let attempts = 0;
       const maxAttempts = 60;
 
@@ -104,10 +97,9 @@ export default function Home() {
         const statusData = await checkAudioStatus(taskId);
 
         if (statusData.status === "completed") {
-          // Try to extract audio URL from various possible locations
-          const audioUrlFromServer = extractAudioUrl(statusData?.data) || 
-                                    extractAudioUrl(statusData);
-          
+          const audioUrlFromServer =
+            extractAudioUrl(statusData?.data) || extractAudioUrl(statusData);
+
           if (audioUrlFromServer) {
             console.log("✅ Audio generated successfully!");
             console.log("📁 Audio URL:", audioUrlFromServer);
@@ -115,23 +107,21 @@ export default function Home() {
             break;
           } else {
             console.warn("⚠️ Completed but no audio URL found. Response:", statusData);
-            throw new Error("No audio URL received from server");
+            throw new Error(t("error.noUrl"));
           }
         }
 
         if (statusData.status === "failed") {
-          throw new Error("Audio generation failed on backend");
+          throw new Error(t("error.backendFailed"));
         }
-
-        // Status is still "processing", continue polling
       }
 
       if (attempts >= maxAttempts) {
-        throw new Error("Audio generation timed out (5+ minutes)");
+        throw new Error(t("error.timeout"));
       }
     } catch (err) {
       console.error("❌ Audio generation error:", err.message);
-      setError(err.message || "Failed to generate audio. Please try again.");
+      setError(err.message || t("error.generic"));
     } finally {
       setIsGenerating(false);
     }
@@ -143,7 +133,7 @@ export default function Home() {
         {/* Model & Voice Selection */}
         <div className="home-controls">
           <div className="home-control-group">
-            <label htmlFor="model-select">AI Model</label>
+            <label htmlFor="model-select">{t("controls.aiModel")}</label>
             <CustomSelect
               id="model-select"
               value={model}
@@ -153,7 +143,7 @@ export default function Home() {
           </div>
 
           <div className="home-control-group">
-            <label htmlFor="voice-select">Voice</label>
+            <label htmlFor="voice-select">{t("controls.voice")}</label>
             <CustomSelect
               id="voice-select"
               value={voice}
@@ -165,16 +155,16 @@ export default function Home() {
 
         {/* Text Input Section */}
         <div className="home-input-section">
-          <label htmlFor="tts-input">Text to Speech</label>
+          <label htmlFor="tts-input">{t("input.label")}</label>
           <div className="textarea-container">
             <textarea
               id="tts-input"
               value={text}
               onChange={(e) => setText(e.target.value.slice(0, maxLength))}
-              placeholder="Type Khmer text here..."
+              placeholder={t("input.placeholder")}
               rows={8}
               disabled={isGenerating}
-              aria-label="Text input for speech synthesis"
+              aria-label={t("input.label")}
             />
             <div className="char-counter" aria-live="polite">
               {text.length} / {maxLength}
@@ -185,7 +175,7 @@ export default function Home() {
         {/* Error Display */}
         {error && (
           <div className="error-message" role="alert">
-            ❌ {error}
+            {error}
           </div>
         )}
 
@@ -198,19 +188,19 @@ export default function Home() {
             className="icon-btn reset-btn"
             onClick={handleClearText}
             disabled={isGenerating}
-            title="Clear text and audio"
-            aria-label="Clear text"
+            title={t("action.clearTitle")}
+            aria-label={t("action.clear")}
           >
-            Clear
+            {t("action.clear")}
           </button>
 
           <button
             className={`generate-btn ${isGenerating ? "generating" : ""}`}
             disabled={text.trim().length === 0 || isGenerating}
             onClick={handleGenerateSpeech}
-            aria-label={isGenerating ? "Generating speech" : "Generate speech"}
+            aria-label={isGenerating ? t("action.generating") : t("action.generate")}
           >
-            {isGenerating ? "Synthesizing Speech..." : "Generate Speech"}
+            {isGenerating ? t("action.generating") : t("action.generate")}
           </button>
         </div>
       </div>

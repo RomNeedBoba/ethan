@@ -1,21 +1,51 @@
+/*
+  Theme tokens — single source of truth for color.
+  No gradients, no competing accent colors. All components read from these vars.
+*/
+
 :root {
-  --bg: #f6f7fb;
-  --bg-surface: #ffffff;
-  --bg-hover: #eef0f6;
-  --text-primary: #1b1f2a;
-  --text-secondary: #606775;
-  --border: #e4e7ee;
-  --shadow: rgba(15, 23, 42, 0.08);
-  --accent: #3b82f6;
+  /* Surfaces */
+  --bg:           #f7f8fa;   /* page background */
+  --bg-surface:  #ffffff;   /* cards, inputs, dropdowns */
+  --bg-hover:    #eef0f4;   /* hovered rows */
+
+  /* Text */
+  --text-primary:   #1b1f2a;
+  --text-secondary: #5a6371;
+
+  /* Lines & shadows */
+  --border:  #e3e6ec;
+  --shadow:  rgba(15, 23, 42, 0.06);
+
+  /* Accent — one calm blue, used everywhere */
+  --accent:        #2563eb;
+  --accent-hover:  #1d4ed8;
+  --accent-soft:   rgba(37, 99, 235, 0.10);  /* tints (selected speed pill, etc.) */
+  --accent-ring:   rgba(37, 99, 235, 0.25);  /* focus rings */
+  --on-accent:     #ffffff;                  /* text/icons on accent fill */
+
+  /* Status */
+  --danger:       #d4222b;
+  --danger-soft:  rgba(212, 34, 43, 0.08);
 }
 
 :root[data-theme="dark"] {
-  --bg: #0f141c;
-  --bg-surface: #121826;
-  --bg-hover: #1b2333;
-  --text-primary: #e7eaf0;
+  --bg:           #0f141c;
+  --bg-surface:  #161c27;
+  --bg-hover:    #1f2734;
+
+  --text-primary:   #e7eaf0;
   --text-secondary: #9aa3b2;
-  --border: #1f2937;
-  --shadow: rgba(0, 0, 0, 0.35);
-  --accent: #60a5fa;
+
+  --border:  #25303f;
+  --shadow:  rgba(0, 0, 0, 0.4);
+
+  --accent:        #3b82f6;
+  --accent-hover:  #60a5fa;
+  --accent-soft:   rgba(59, 130, 246, 0.16);
+  --accent-ring:   rgba(59, 130, 246, 0.35);
+  --on-accent:     #ffffff;
+
+  --danger:       #f87171;
+  --danger-soft:  rgba(248, 113, 113, 0.12);
 }

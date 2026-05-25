@@ -1,19 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { ThemeProvider } from "./ThemeContext.jsx";
 import Topbar from "./components/TopBar/Topbar.jsx";
 import Home from "./Home/Home.jsx";
 
 /**
- * Main App Component
- * Wraps the application with theme provider and renders top navigation + home page
+ * Main App Component.
+ * - ThemeProvider handles light/dark mode.
+ * - LanguageProvider (in main.jsx) handles UI language.
  */
 export default function App() {
-  const [language, setLanguage] = useState("km");
-
   return (
     <ThemeProvider>
       <div className="app">
-        <Topbar language={language} setLanguage={setLanguage} />
+        <Topbar />
         <Home />
       </div>
     </ThemeProvider>

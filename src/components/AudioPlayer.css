@@ -1,24 +1,25 @@
 /*
-  AudioPlayer.css
-  No card, no cover — sits inline below the textarea inside .home-content.
-  Width is inherited from .home-content (max-width: 900px) automatically.
-  All vars come from home.css — nothing new added.
+  AudioPlayer.css — uses tokens from theme.css only.
+  Play button matches .generate-btn / .reset-btn:
+    - 44px height
+    - 8px border-radius
+    - same accent fill / hover behavior
 */
 
-/* ─── Container — matches .textarea-container geometry ───────── */
+/* Container */
 .ap {
   width: 100%;
   box-sizing: border-box;
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
-  border-radius: 8px;          /* same as .textarea-container */
+  border-radius: 8px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* ─── Top row: label + download ──────────────────────────────── */
+/* Top row: label + download */
 .ap-top {
   display: flex;
   align-items: center;
@@ -28,7 +29,7 @@
 .ap-label {
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-secondary);  /* same as home labels */
+  color: var(--text-secondary);
   margin-left: 2px;
 }
 
@@ -43,15 +44,15 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
 }
-
 .ap-dl:hover {
+  background-color: var(--bg-hover);
   border-color: var(--text-secondary);
   color: var(--text-primary);
 }
 
-/* ─── Seek bar ────────────────────────────────────────────────── */
+/* Seek bar */
 .ap-seek-row {
   display: flex;
   align-items: center;
@@ -61,7 +62,7 @@
 .ap-time {
   font-size: 12px;
   color: var(--text-secondary);
-  min-width: 34px;
+  min-width: 36px;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
@@ -75,7 +76,6 @@
   overflow: hidden;
   transition: height 0.15s;
 }
-
 .ap-bar-track:hover {
   height: 6px;
 }
@@ -88,7 +88,7 @@
   pointer-events: none;
 }
 
-/* ─── Bottom row: volume | play | speeds ─────────────────────── */
+/* Bottom row: volume | play | speeds */
 .ap-btm {
   display: flex;
   align-items: center;
@@ -104,7 +104,7 @@
 }
 
 .ap-vol-input {
-  width: 70px;
+  width: 80px;
   height: 3px;
   appearance: none;
   -webkit-appearance: none;
@@ -114,7 +114,6 @@
   outline: none;
   accent-color: var(--accent);
 }
-
 .ap-vol-input::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 12px;
@@ -123,7 +122,6 @@
   background-color: var(--accent);
   cursor: pointer;
 }
-
 .ap-vol-input::-moz-range-thumb {
   width: 12px;
   height: 12px;
@@ -133,72 +131,90 @@
   cursor: pointer;
 }
 
-/* Play button — same accent as .generate-btn */
+/* Play / Pause — matches .generate-btn shape & feel */
 .ap-play {
-  width: 44px;
+  min-width: 88px;
   height: 44px;
-  border-radius: 50%;
-  background-color: var(--accent);
+  padding: 0 18px;
   border: none;
-  color: #fff;
-  display: flex;
+  border-radius: 8px;
+  background-color: var(--accent);
+  color: var(--on-accent);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   cursor: pointer;
-  transition: filter 0.2s, transform 0.1s;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.15s, transform 0.1s;
   flex-shrink: 0;
 }
-
 .ap-play:hover {
-  filter: brightness(1.1);     /* same as .generate-btn:hover */
+  background-color: var(--accent-hover);
 }
-
 .ap-play:active {
-  transform: scale(0.98);      /* same as .generate-btn:active */
+  transform: scale(0.98);
+}
+.ap-play svg {
+  display: block;
 }
 
 /* Speed pills */
 .ap-speeds {
   display: flex;
-  gap: 5px;
+  gap: 6px;
   margin-left: auto;
 }
 
 .ap-spd {
-  padding: 4px 10px;
-  border-radius: 999px;
+  padding: 5px 10px;
+  border-radius: 6px;
   border: 1px solid var(--border);
   background-color: transparent;
   color: var(--text-secondary);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
   font-family: inherit;
 }
-
 .ap-spd:hover {
-  border-color: var(--text-secondary);
+  background-color: var(--bg-hover);
   color: var(--text-primary);
+  border-color: var(--text-secondary);
 }
-
 .ap-spd.on {
-  background-color: var(--accent-bg, rgba(170, 59, 255, 0.1));
-  border-color: var(--accent-border, rgba(170, 59, 255, 0.5));
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
   color: var(--accent);
 }
 
-/* ─── Responsive — follows home.css breakpoint ────────────────── */
+/* Error state */
+.ap.error-state {
+  border-color: var(--danger);
+  background-color: var(--danger-soft);
+  color: var(--danger);
+}
+.ap.error-state p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Responsive */
 @media (max-width: 640px) {
   .ap {
     padding: 14px;
   }
-
   .ap-vol-input {
-    width: 55px;
+    width: 60px;
   }
-
   .ap-spd {
-    padding: 4px 8px;
+    padding: 5px 8px;
+  }
+  .ap-play {
+    min-width: 72px;
+    padding: 0 12px;
   }
 }
