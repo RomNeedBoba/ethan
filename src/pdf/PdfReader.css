@@ -1,0 +1,65 @@
+/* Split layout for the AudioBook screen */
+
+.pdfr {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  background-color: var(--bg);
+  overflow: hidden;
+}
+
+.pdfr__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.pdfr__side {
+  width: 360px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background-color: var(--bg-surface);
+  border-left: 1px solid var(--border);
+}
+
+.pdfr__side-top {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.pdfr__side-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-left: 2px;
+}
+
+.pdfr__side .convo {
+  border-left: none;
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 1024px) {
+  .pdfr__side { width: 320px; }
+}
+
+@media (max-width: 720px) {
+  .pdfr { flex-direction: column; }
+  .pdfr__side {
+    width: 100%;
+    height: 45%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+  .pdfr__main { height: 55%; }
+}

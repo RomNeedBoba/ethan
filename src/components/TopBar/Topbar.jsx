@@ -5,13 +5,11 @@ import { useTheme } from "../../ThemeContext.jsx";
 
 /**
  * Topbar Component - Navigation Header
- * 
- * Features:
- * - Hamburger menu with links (Research, Feedback, About)
+ *
+ * - Hamburger menu: AudioBook on top, then Research/Feedback/About
+ * - Logo: click returns to TTS landing page
  * - Language selector (Khmer, English, Chinese, French)
  * - Dark/Light theme toggle
- * - Responsive dropdown menus
- * - Full accessibility with ARIA labels
  */
 
 const LANGUAGES = [
@@ -21,14 +19,13 @@ const LANGUAGES = [
   { value: "fr", label: "Français", labelEn: "French" },
 ];
 
-export default function Topbar({ language, setLanguage }) {
+export default function Topbar({ language, setLanguage, mode, setMode }) {
   const { theme, toggle } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const menuRef = useRef(null);
   const langRef = useRef(null);
 
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const close = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
@@ -40,11 +37,14 @@ export default function Topbar({ language, setLanguage }) {
 
   const selectedLang = LANGUAGES.find((l) => l.value === language) || LANGUAGES[0];
 
+  const goToMode = (next) => {
+    setMode?.(next);
+    setMenuOpen(false);
+  };
+
   return (
     <header className="topbar">
-      {/* Left: Hamburger Menu + Logo */}
       <div className="topbar__left">
-        {/* Hamburger Menu */}
         <div className="topbar__menu-wrap" ref={menuRef}>
           <button
             className="topbar__icon-btn"
@@ -61,6 +61,23 @@ export default function Topbar({ language, setLanguage }) {
 
           {menuOpen && (
             <div className="topbar__dropdown" role="menu">
+              <button
+                type="button"
+                className={`topbar__dropdown-item ${mode === "pdf" ? "is-active" : ""}`}
+                onClick={() => goToMode("pdf")}
+                role="menuitem"
+                aria-current={mode === "pdf" ? "page" : undefined}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 2h7l3 3v8a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+                  <path d="M10 2v3h3" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+                  <path d="M6 9.5l2 1.5 2-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                AudioBook
+              </button>
+
+              <div className="topbar__dropdown-divider" role="separator" aria-hidden="true" />
+
               <a
                 className="topbar__dropdown-item"
                 href="https://www.idri.edu.kh/research/"
@@ -111,15 +128,18 @@ export default function Topbar({ language, setLanguage }) {
           )}
         </div>
 
-        {/* Logo */}
-        <div className="topbar__logo">
+        <button
+          type="button"
+          className="topbar__logo topbar__logo-btn"
+          onClick={() => setMode?.("tts")}
+          aria-label="Go to home"
+          title="Home"
+        >
           <img src={logo} alt="IDRI Logo" className="topbar__logo-img" />
-        </div>
+        </button>
       </div>
 
-      {/* Right: Language Selector + Theme Toggle */}
       <div className="topbar__right">
-        {/* Language Dropdown */}
         <div className="topbar__lang-wrap" ref={langRef}>
           <button
             className="topbar__lang-btn"
@@ -134,9 +154,7 @@ export default function Topbar({ language, setLanguage }) {
               <ellipse cx="8" cy="8" rx="3" ry="6.5" stroke="currentColor" strokeWidth="1.3" />
               <path d="M2 6h12M2 10h12" stroke="currentColor" strokeWidth="1.3" />
             </svg>
-
             <span className="topbar__lang-label">{selectedLang.labelEn}</span>
-
             <svg
               className={`topbar__chevron ${langOpen ? "is-up" : ""}`}
               width="12"
@@ -145,13 +163,7 @@ export default function Topbar({ language, setLanguage }) {
               fill="none"
               aria-hidden="true"
             >
-              <path
-                d="M3 4.5l3 3 3-3"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M3 4.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
 
@@ -170,16 +182,9 @@ export default function Topbar({ language, setLanguage }) {
                   aria-current={l.value === language ? "true" : "false"}
                 >
                   <span>{l.label}</span>
-
                   {l.value === language && (
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                      <path
-                        d="M3 7l3 3 5-6"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
+                      <path d="M3 7l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   )}
                 </button>
@@ -188,7 +193,6 @@ export default function Topbar({ language, setLanguage }) {
           )}
         </div>
 
-        {/* Theme Toggle */}
         <button
           className="topbar__icon-btn"
           onClick={toggle}

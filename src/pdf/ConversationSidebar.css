@@ -1,0 +1,230 @@
+/* Chat-style list for the AudioBook screen */
+
+.convo {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background-color: var(--bg-surface);
+  border-left: 1px solid var(--border);
+}
+
+.convo__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.convo__title {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.convo__clear {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.convo__clear:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.convo__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.convo__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  padding: 24px;
+  color: var(--text-secondary);
+}
+
+.convo__empty-icon {
+  color: var(--text-secondary);
+  opacity: 0.5;
+  margin-bottom: 14px;
+}
+
+.convo__empty-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.convo__empty-hint {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 220px;
+}
+
+.convo__item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.convo__bubble {
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: convo__in 0.2s ease;
+}
+
+@keyframes convo__in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.convo__bubble--user {
+  background-color: rgba(37, 99, 235, 0.10);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  align-self: flex-end;
+  max-width: 92%;
+}
+
+.convo__bubble--assistant {
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  align-self: stretch;
+}
+
+.convo__bubble-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.convo__role {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.convo__bubble--user .convo__role {
+  color: var(--accent, #2563eb);
+}
+
+.convo__icon-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s;
+  flex-shrink: 0;
+}
+
+.convo__icon-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.convo__text {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.convo__meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.convo__model {
+  font-weight: 500;
+}
+
+.convo__pending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 4px 0;
+}
+
+.convo__spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  border-top-color: var(--accent, #2563eb);
+  animation: convo__spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes convo__spin {
+  to { transform: rotate(360deg); }
+}
+
+.convo__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 13px;
+  color: var(--danger, #d4222b);
+}
+
+.convo__retry {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--danger, #d4222b);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--danger, #d4222b);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.12s;
+}
+
+.convo__retry:hover {
+  background-color: rgba(212, 34, 43, 0.08);
+}

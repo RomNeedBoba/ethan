@@ -161,3 +161,34 @@
   .topbar__lang-label { display: none; }
   .topbar__title { font-size: 13px; }
 }
+/* Divider inside dropdown menu — separates app modes from external links */
+.topbar__dropdown-divider {
+  height: 1px;
+  background-color: var(--border);
+  margin: 4px 0;
+}
+
+/* Menu items as <button> (modes) need to match anchor styling */
+button.topbar__dropdown-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+/* Logo as button — reset default <button> styling */
+.topbar__logo-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: opacity 0.15s;
+}
+.topbar__logo-btn:hover { opacity: 0.75; }
+.topbar__logo-btn:focus-visible {
+  outline: 2px solid var(--accent, #2563eb);
+  outline-offset: 2px;
+}
