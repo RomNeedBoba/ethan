@@ -1,29 +1,32 @@
 import React, { useState } from "react";
-import { ThemeProvider } from "./ThemeContext.jsx";
-import Topbar from "./components/TopBar/Topbar.jsx";
-import Home from "./Home/Home.jsx";
-import PdfReader from "./pdf/PdfReader.jsx";
+import { pdfjs, Document, Page } from "react-pdf";
 
-/**
- * Main App Component
- * - Manages global language + active mode (TTS landing vs AudioBook)
- * - Wraps app in ThemeProvider and renders Topbar + the active screen
- */
-export default function App() {
-  const [language, setLanguage] = useState("km");
-  const [mode, setMode] = useState("tts"); // 'tts' (default landing) | 'pdf' (AudioBook)
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+  // PdfReader Component
+export default function PdfReader({ language }) {
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+  }
 
   return (
-    <ThemeProvider>
-      <div className="app">
-        <Topbar
-          language={language}
-          setLanguage={setLanguage}
-          mode={mode}
-          setMode={setMode}
-        />
-        {mode === "pdf" ? <PdfReader language={language} /> : <Home />}
-      </div>
-    </ThemeProvider>
+    <div className="pdf-reader">
+      <h2>Reading Mode (Language: {language})</h2>
+      
+      {/* Example Document Render */}
+      <Document
+        file="your-pdf-file.pdf" 
+        onLoadSuccess={onDocumentLoadSuccess}
+      >
+        <Page pageNumber={pageNumber} />
+      </Document>
+      
+      <p>
+        Page {pageNumber} of {numPages}
+      </p>
+    </div>
   );
 }
