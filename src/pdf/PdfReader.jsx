@@ -1,9 +1,4 @@
 import { useState, useCallback, useMemo, useRef } from "react";
-import { pdfjs } from "react-pdf"; // <-- 1. ADDED: Import the library
-
-// <-- 2. ADDED: The Global Worker Fix -->
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-
 import CustomSelect from "../components/CustomSelect.jsx";
 import PdfViewer from "./PdfViewer.jsx";
 import ConversationSidebar from "./ConversationSidebar.jsx";
