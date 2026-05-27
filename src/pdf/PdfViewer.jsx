@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Document, Page } from "react-pdf";
-import "./pdfWorker.js";
 import { t } from "./strings.js";
 import "./PdfViewer.css";
 
