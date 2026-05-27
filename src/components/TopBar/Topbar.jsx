@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./Topbar.css";
-import logo from "./IDRI.png";
+import logo from "../../assets/IDRI.png";
 import { useTheme } from "../../ThemeContext.jsx";
 
 /**
