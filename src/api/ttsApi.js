@@ -151,7 +151,7 @@ export const startAudioGeneration = async (text) => {
  * @returns {Promise<string>} - Task ID for tracking progress
  * @throws {Error} - If validation, rate limiting, or API call fails
  */
-export const startReporterGeneration = async (text) => {
+export const startVoxCPMGeneration = async (text) => {
   try {
     rateLimiter.enforceLimit();
     const validatedText = validateText(text);
