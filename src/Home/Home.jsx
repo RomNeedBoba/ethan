@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import CustomSelect from "../components/CustomSelect";
 import AudioPlayer from "../components/AudioPlayer";
-import { startAudioGeneration, startReporterGeneration, checkAudioStatus } from "../api/ttsApi";
+import { startVoxCPMGeneration, startReporterGeneration, checkAudioStatus } from "../api/ttsApi";
 import { useTranslation } from "../i18n/LanguageContext.jsx";
 import "./Home.css";
 
