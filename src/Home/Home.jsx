@@ -47,7 +47,7 @@ export default function Home() {
 
   /**
    * Extracts audio URL from response data. Tries multiple field names because
-   * the backend contract has shifted over time.
+   * the backend contract has shifted over time. Converts relative paths to full URLs.
    */
   const extractAudioUrl = (data) => {
     if (!data) return null;
@@ -61,9 +61,21 @@ export default function Home() {
       "file",
     ];
     for (const field of audioUrlFields) {
-      if (data[field]) return data[field];
+      if (data[field]) {
+        const url = data[field];
+        // Convert relative paths to full URLs
+        if (url.startsWith('/')) {
+          return `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}${url}`;
+        }
+        return url;
+      }
     }
-    if (typeof data === "string") return data;
+    if (typeof data === "string") {
+      if (data.startsWith('/')) {
+        return `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}${data}`;
+      }
+      return data;
+    }
     return null;
   };
 
