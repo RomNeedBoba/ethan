@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import CustomSelect from "../components/CustomSelect";
 import AudioPlayer from "../components/AudioPlayer";
-import { startVoxCPMGeneration, startReporterGeneration, checkAudioStatus } from "../api/ttsApi";
+import { startVoxCPMGeneration, startAudioGeneration, checkAudioStatus } from "../api/ttsApi";
 import { useTranslation } from "../i18n/LanguageContext.jsx";
 import "./Home.css";
 
@@ -86,7 +86,7 @@ export default function Home() {
 
       const taskId =
         model === "reporter"
-          ? await startReporterGeneration(text)
+          ? await startVoxCPMGeneration(text)
           : await startAudioGeneration(text);
       
       console.log("✅ Task ID received:", taskId);
