@@ -2,9 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import * as pdfjsLib from "pdfjs-dist";
 
-// Initialize PDF worker FIRST before any component loads
+// Initialize PDF worker for v3.x
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.mjs",
+  "pdfjs-dist/build/pdf.worker.min.js",
   import.meta.url
 ).toString();
 
