@@ -30,15 +30,12 @@ const MAX_TASK_ID_LENGTH = 100;
  * @throws {Error} - If validation fails
  */
 const validateText = (text) => {
-  // Check if text exists and is a string
   if (!text || typeof text !== "string") {
     throw new Error("Text must be a non-empty string");
   }
 
-  // Trim whitespace
   const trimmedText = text.trim();
 
-  // Check length
   if (trimmedText.length < MIN_TEXT_LENGTH) {
     throw new Error("Text cannot be empty");
   }
@@ -65,7 +62,6 @@ const validateTaskId = (taskId) => {
     throw new Error("Invalid task ID format");
   }
 
-  // Only allow alphanumeric, hyphens, and underscores
   if (!/^[a-zA-Z0-9_-]+$/.test(taskId)) {
     throw new Error("Task ID contains invalid characters");
   }
@@ -90,28 +86,21 @@ const getAuthHeaders = () => ({
  */
 export const startAudioGeneration = async (text) => {
   try {
-    // Check rate limit first
     rateLimiter.enforceLimit();
-
-    // Validate input
     const validatedText = validateText(text);
 
-    // Execute request with automatic retry logic
     const data = await executeWithRetry(async () => {
       const response = await fetch(`${API_BASE_URL}/generate`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({ text: validatedText }),
-        signal: AbortSignal.timeout(10000), // 10 second timeout
+        signal: AbortSignal.timeout(10000),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        const statusText = response.statusText;
-
-        // Create error object with status for retry logic
         const error = new Error(
-          errorData.message || `Failed to queue Soriya task (${response.status} ${statusText})`
+          errorData.message || `Failed to queue Soriya task (${response.status} ${response.statusText})`
         );
         error.status = response.status;
 
@@ -131,12 +120,8 @@ export const startAudioGeneration = async (text) => {
       throw new Error("No task ID received from server");
     }
 
-    // Record successful request for rate limiting
     rateLimiter.recordRequest();
-
-    const status = rateLimiter.getStatus();
     console.log("✅ Soriya generation started. Task ID:", data.task_id);
-    console.log(`📊 Rate limit: ${status.remainingRequests}/${status.maxRequests} requests remaining`);
 
     return data.task_id;
   } catch (error) {
@@ -146,7 +131,7 @@ export const startAudioGeneration = async (text) => {
 };
 
 /**
- * Starts Reporter (VoxCPM) audio generation
+ * Starts Sokkha (VoxCPM) audio generation
  * @param {string} text - Text to convert to speech
  * @returns {Promise<string>} - Task ID for tracking progress
  * @throws {Error} - If validation, rate limiting, or API call fails
@@ -167,7 +152,7 @@ export const startVoxCPMGeneration = async (text) => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         const error = new Error(
-          errorData.message || `Failed to queue Reporter task (${response.status} ${response.statusText})`
+          errorData.message || `Failed to queue Sokkha task (${response.status} ${response.statusText})`
         );
         error.status = response.status;
 
@@ -176,61 +161,51 @@ export const startVoxCPMGeneration = async (text) => {
         } else if (response.status === 403) {
           error.message = "Authentication failed: Access denied";
         } else if (response.status === 503) {
-          error.message = "Reporter model is not available";
+          error.message = "Sokkha model is not available";
         }
 
         throw error;
       }
 
       return await response.json();
-    }, "Reporter generation");
+    }, "Sokkha generation");
 
     if (!data.task_id) {
       throw new Error("No task ID received from server");
     }
 
     rateLimiter.recordRequest();
-
-    const status = rateLimiter.getStatus();
-    console.log("✅ Reporter generation started. Task ID:", data.task_id);
-    console.log(`📊 Rate limit: ${status.remainingRequests}/${status.maxRequests} requests remaining`);
+    console.log("✅ Sokkha generation started. Task ID:", data.task_id);
 
     return data.task_id;
   } catch (error) {
-    console.error("❌ Reporter generation error:", error.message);
+    console.error("❌ Sokkha generation error:", error.message);
     throw error;
   }
 };
 
 /**
- * Checks audio generation status with validated task ID, authentication, and rate limiting
+ * Checks audio generation status
  * @param {string} taskId - Task ID to check
  * @returns {Promise<object>} - Status information
  * @throws {Error} - If validation, rate limiting, or API call fails
  */
 export const checkAudioStatus = async (taskId) => {
   try {
-    // Check rate limit first
     rateLimiter.enforceLimit();
-
-    // Validate input
     const validatedTaskId = validateTaskId(taskId);
 
-    // Execute request with automatic retry logic
     const statusData = await executeWithRetry(async () => {
       const response = await fetch(`${API_BASE_URL}/status/${encodeURIComponent(validatedTaskId)}`, {
         method: "GET",
         headers: getAuthHeaders(),
-        signal: AbortSignal.timeout(10000), // 10 second timeout
+        signal: AbortSignal.timeout(10000),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        const statusText = response.statusText;
-
-        // Create error object with status for retry logic
         const error = new Error(
-          errorData.message || `Failed to check status (${response.status} ${statusText})`
+          errorData.message || `Failed to check status (${response.status} ${response.statusText})`
         );
         error.status = response.status;
 
@@ -246,12 +221,8 @@ export const checkAudioStatus = async (taskId) => {
       return await response.json();
     }, "Status check");
 
-    // Record successful request for rate limiting
     rateLimiter.recordRequest();
-
-    const status = rateLimiter.getStatus();
     console.log("✅ Status check successful:", statusData);
-    console.log(`📊 Rate limit: ${status.remainingRequests}/${status.maxRequests} requests remaining`);
 
     return statusData;
   } catch (error) {
@@ -261,7 +232,7 @@ export const checkAudioStatus = async (taskId) => {
 };
 
 /**
- * Get current rate limit status (useful for UI display)
+ * Get current rate limit status
  * @returns {object} - Current rate limit information
  */
 export const getRateLimitStatus = () => {
