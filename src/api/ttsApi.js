@@ -83,7 +83,7 @@ const getAuthHeaders = () => ({
 });
 
 /**
- * Starts audio generation with validated input, authentication, and rate limiting
+ * Starts Soriya (VITS2) audio generation
  * @param {string} text - Text to convert to speech
  * @returns {Promise<string>} - Task ID for tracking progress
  * @throws {Error} - If validation, rate limiting, or API call fails
@@ -111,7 +111,7 @@ export const startAudioGeneration = async (text) => {
 
         // Create error object with status for retry logic
         const error = new Error(
-          errorData.message || `Failed to queue task (${response.status} ${statusText})`
+          errorData.message || `Failed to queue Soriya task (${response.status} ${statusText})`
         );
         error.status = response.status;
 
@@ -125,7 +125,7 @@ export const startAudioGeneration = async (text) => {
       }
 
       return await response.json();
-    }, "Audio generation");
+    }, "Soriya audio generation");
 
     if (!data.task_id) {
       throw new Error("No task ID received from server");
@@ -135,24 +135,23 @@ export const startAudioGeneration = async (text) => {
     rateLimiter.recordRequest();
 
     const status = rateLimiter.getStatus();
-    console.log("✅ Audio generation started. Task ID:", data.task_id);
+    console.log("✅ Soriya generation started. Task ID:", data.task_id);
     console.log(`📊 Rate limit: ${status.remainingRequests}/${status.maxRequests} requests remaining`);
 
     return data.task_id;
   } catch (error) {
-    console.error("❌ Audio generation error:", error.message);
+    console.error("❌ Soriya generation error:", error.message);
     throw error;
   }
 };
 
 /**
- * Starts VoxCPM audio generation. Same validation + auth + retry as VITS2,
- * but hits /voxcpm/generate. cfg_value, inference_timesteps are optional;
- * omitting them lets the backend use its defaults.
+ * Starts Reporter (VoxCPM) audio generation
  * @param {string} text - Text to convert to speech
  * @returns {Promise<string>} - Task ID for tracking progress
+ * @throws {Error} - If validation, rate limiting, or API call fails
  */
-export const startVoxCPMGeneration = async (text) => {
+export const startReporterGeneration = async (text) => {
   try {
     rateLimiter.enforceLimit();
     const validatedText = validateText(text);
@@ -168,7 +167,7 @@ export const startVoxCPMGeneration = async (text) => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         const error = new Error(
-          errorData.message || `Failed to queue VoxCPM task (${response.status} ${response.statusText})`
+          errorData.message || `Failed to queue Reporter task (${response.status} ${response.statusText})`
         );
         error.status = response.status;
 
@@ -176,13 +175,15 @@ export const startVoxCPMGeneration = async (text) => {
           error.message = "Authentication failed: Invalid or missing API key";
         } else if (response.status === 403) {
           error.message = "Authentication failed: Access denied";
+        } else if (response.status === 503) {
+          error.message = "Reporter model is not available";
         }
 
         throw error;
       }
 
       return await response.json();
-    }, "VoxCPM generation");
+    }, "Reporter generation");
 
     if (!data.task_id) {
       throw new Error("No task ID received from server");
@@ -191,12 +192,12 @@ export const startVoxCPMGeneration = async (text) => {
     rateLimiter.recordRequest();
 
     const status = rateLimiter.getStatus();
-    console.log("✅ VoxCPM generation started. Task ID:", data.task_id);
+    console.log("✅ Reporter generation started. Task ID:", data.task_id);
     console.log(`📊 Rate limit: ${status.remainingRequests}/${status.maxRequests} requests remaining`);
 
     return data.task_id;
   } catch (error) {
-    console.error("❌ VoxCPM generation error:", error.message);
+    console.error("❌ Reporter generation error:", error.message);
     throw error;
   }
 };

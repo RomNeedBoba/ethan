@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import CustomSelect from "../components/CustomSelect";
 import AudioPlayer from "../components/AudioPlayer";
-import { startAudioGeneration, startVoxCPMGeneration, checkAudioStatus } from "../api/ttsApi";
+import { startAudioGeneration, startReporterGeneration, checkAudioStatus } from "../api/ttsApi";
 import { useTranslation } from "../i18n/LanguageContext.jsx";
 import "./Home.css";
 
@@ -14,24 +14,26 @@ export default function Home() {
   const { t } = useTranslation();
 
   const [text, setText] = useState("");
-  const [model, setModel] = useState("khmer-cambodia");
+  const [model, setModel] = useState("soriya");
   const [voice, setVoice] = useState("the-documentarian");
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
   const [error, setError] = useState(null);
+  const [processingStatus, setProcessingStatus] = useState("");
   const maxLength = 5000;
 
   const handleClearText = () => {
     setText("");
     setAudioUrl(null);
     setError(null);
+    setProcessingStatus("");
   };
 
-  // Rebuild option arrays whenever the language changes so labels stay localized.
+  // Model options with proper names
   const modelOptions = useMemo(
     () => [
-      { value: "khmer-cambodia", label: "Soriya" }, // VITS2 - proper noun, not translated
-      { value: "multilingual", label: "Sokkha" },   // VoxCPM - proper noun, not translated
+      { value: "soriya", label: "🎙️ Soriya (VITS2)" },
+      { value: "reporter", label: "📰 Reporter (VoxCPM)" },
     ],
     []
   );
@@ -76,25 +78,36 @@ export default function Home() {
     setIsGenerating(true);
     setAudioUrl(null);
     setError(null);
+    setProcessingStatus("Queuing audio generation...");
 
     try {
       console.log("📝 Sending text to backend...");
+      console.log(`🎯 Model: ${model}`);
 
       const taskId =
-        model === "multilingual"
-          ? await startVoxCPMGeneration(text)
+        model === "reporter"
+          ? await startReporterGeneration(text)
           : await startAudioGeneration(text);
+      
       console.log("✅ Task ID received:", taskId);
+      setProcessingStatus("Waiting for audio generation...");
 
       let attempts = 0;
-      const maxAttempts = 60;
+      const maxAttempts = 120; // 10 minutes with 5s intervals
 
       while (attempts < maxAttempts) {
         await new Promise((resolve) => setTimeout(resolve, 5000));
         attempts++;
 
+        const attemptsRemaining = maxAttempts - attempts;
+        setProcessingStatus(
+          `Processing... (${attempts}/${maxAttempts}) - ~${Math.ceil(attemptsRemaining * 5 / 60)}min remaining`
+        );
+
         console.log(`🔄 Status check attempt ${attempts}/${maxAttempts}...`);
         const statusData = await checkAudioStatus(taskId);
+
+        console.log(`Status: ${statusData.status}`, statusData.data);
 
         if (statusData.status === "completed") {
           const audioUrlFromServer =
@@ -103,6 +116,7 @@ export default function Home() {
           if (audioUrlFromServer) {
             console.log("✅ Audio generated successfully!");
             console.log("📁 Audio URL:", audioUrlFromServer);
+            setProcessingStatus("Audio ready!");
             setAudioUrl(audioUrlFromServer);
             break;
           } else {
@@ -112,7 +126,14 @@ export default function Home() {
         }
 
         if (statusData.status === "failed") {
-          throw new Error(t("error.backendFailed"));
+          const errorMsg = statusData.data?.error || t("error.backendFailed");
+          throw new Error(errorMsg);
+        }
+
+        if (statusData.status === "processing") {
+          setProcessingStatus(
+            `Generating audio... (${attempts}/${maxAttempts}) - ~${Math.ceil(attemptsRemaining * 5 / 60)}min remaining`
+          );
         }
       }
 
@@ -122,6 +143,7 @@ export default function Home() {
     } catch (err) {
       console.error("❌ Audio generation error:", err.message);
       setError(err.message || t("error.generic"));
+      setProcessingStatus("");
     } finally {
       setIsGenerating(false);
     }
@@ -171,6 +193,14 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Processing Status */}
+        {processingStatus && (
+          <div className="processing-status" role="status">
+            <div className="spinner"></div>
+            <span>{processingStatus}</span>
+          </div>
+        )}
 
         {/* Error Display */}
         {error && (
