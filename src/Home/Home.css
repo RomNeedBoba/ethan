@@ -6,8 +6,9 @@
 
 .home-wrapper {
   display: flex;
-  justify-content: center;
-  padding: 48px 24px 64px;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px;
   width: 100%;
   box-sizing: border-box;
   background-color: var(--bg);
@@ -23,46 +24,9 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-/* ---------- Landing hero ---------- */
-.home-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 10px;
-  margin-bottom: 4px;
-}
-
-.home-hero__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background-color: var(--accent-soft);
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.home-hero__title {
-  font-size: 32px;
-  line-height: 1.15;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.home-hero__subtitle {
-  font-size: 15px;
-  line-height: 1.55;
-  color: var(--text-secondary);
-  margin: 0;
-  max-width: 440px;
+  /* auto margins center the block vertically when it fits, yet let it
+     scroll normally (instead of clipping) once it grows taller than the wrapper */
+  margin-block: auto;
 }
 
 /* ---------- Controls & Labels ---------- */
@@ -368,9 +332,6 @@
 @media (max-width: 640px) {
   .home-wrapper {
     padding: 32px 16px 48px;
-  }
-  .home-hero__title {
-    font-size: 26px;
   }
   .home-controls {
     grid-template-columns: 1fr;

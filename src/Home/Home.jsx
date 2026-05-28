@@ -173,18 +173,6 @@ export default function Home() {
   return (
     <main className="home-wrapper">
       <div className="home-content">
-        {/* Landing header */}
-        <header className="home-hero">
-          <span className="home-hero__eyebrow" aria-hidden="true">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M2.5 8h1.2M5.5 5.5v5M8 3v10M10.5 5.5v5M13 7v2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-            Khmer TTS
-          </span>
-          <h1 className="home-hero__title">{t("home.title")}</h1>
-          <p className="home-hero__subtitle">{t("home.subtitle")}</p>
-        </header>
-
         {/* Model & Voice Selection */}
         <div className="home-controls">
           <div className="home-control-group">
