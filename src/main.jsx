@@ -1,12 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import * as pdfjsLib from "pdfjs-dist";
+import { pdfjs } from "react-pdf";
 
-// Initialize PDF worker for v3.x
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.js",
-  import.meta.url
-).toString();
+// Use the exact pdfjs build that react-pdf ships with (v5), so the worker
+// version always matches the API version. Vite resolves this to a hashed,
+// served asset URL via the `?url` suffix.
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 import App from "./App.jsx";
 import { LanguageProvider } from "./i18n/LanguageContext.jsx";
