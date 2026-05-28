@@ -25,6 +25,11 @@ const translations = {
     "theme.toDark": "Switch to dark mode",
     "theme.toggle": "Toggle dark/light theme",
 
+    // Landing header + examples
+    "home.title": "Khmer Text to Speech",
+    "home.subtitle": "Type or paste Khmer text, then generate natural-sounding speech.",
+    "home.tryExample": "Try an example",
+
     // Controls
     "controls.aiModel": "AI Model",
     "controls.voice": "Voice",
@@ -77,6 +82,10 @@ const translations = {
     "theme.toDark": "ប្តូរទៅផ្ទៃងងឹត",
     "theme.toggle": "ប្តូរផ្ទៃងងឹត / ភ្លឺ",
 
+    "home.title": "បំប្លែងអក្សរខ្មែរទៅជាសំឡេង",
+    "home.subtitle": "វាយ ឬបិទភ្ជាប់អក្សរខ្មែរ រួចបង្កើតសំឡេងធម្មជាតិ។",
+    "home.tryExample": "សាកល្បងជាមួយឧទាហរណ៍",
+
     "controls.aiModel": "ម៉ូដែល AI",
     "controls.voice": "សំឡេង",
 
@@ -123,6 +132,10 @@ const translations = {
     "theme.toDark": "切换到深色模式",
     "theme.toggle": "切换深色／浅色主题",
 
+    "home.title": "高棉语文字转语音",
+    "home.subtitle": "输入或粘贴高棉语文本，即可生成自然的语音。",
+    "home.tryExample": "试试示例",
+
     "controls.aiModel": "AI 模型",
     "controls.voice": "声音",
 
@@ -168,6 +181,10 @@ const translations = {
     "theme.toLight": "Passer en mode clair",
     "theme.toDark": "Passer en mode sombre",
     "theme.toggle": "Basculer le thème clair / sombre",
+
+    "home.title": "Synthèse vocale khmère",
+    "home.subtitle": "Saisissez ou collez du texte khmer, puis générez une voix naturelle.",
+    "home.tryExample": "Essayer un exemple",
 
     "controls.aiModel": "Modèle IA",
     "controls.voice": "Voix",
