@@ -59,8 +59,10 @@ export default function Home() {
   // Rebuild option arrays whenever the language changes so labels stay localized.
   const modelOptions = useMemo(
     () => [
-      { value: "khmer-cambodia", label: "Soriya" }, // VITS2 - proper noun, not translated
-      { value: "multilingual", label: "Sokkha" },   // VoxCPM - proper noun, not translated
+      { value: "khmer-cambodia", label: "Soriyan" },
+      { value: "multilingual", label: "Male Report" },  
+      { value: "multilingual", label: "Stories Teller" },
+      { value: "multilingual", label: "Sokky" },
     ],
     []
   );
