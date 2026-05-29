@@ -19,6 +19,12 @@ const KHMER_EXAMPLES = [
 ];
 
 /**
+ * Voices that run through the VoxCPM clone backend. Each `value` is the voice id
+ * the backend uses to pick the matching LoRA. "soriyan" is the non-clone VITS2 path.
+ */
+const VOXCPM_VOICES = new Set(["male_report", "storyteller", "sokky"]);
+
+/**
  * Home Component - Main TTS Interface.
  * All visible strings come from useTranslation() so the UI reacts to the
  * language picker in the topbar.
@@ -27,7 +33,7 @@ export default function Home() {
   const { t } = useTranslation();
 
   const [text, setText] = useState("");
-  const [model, setModel] = useState("khmer-cambodia");
+  const [model, setModel] = useState("soriyan");
   const [voice, setVoice] = useState("the-documentarian");
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -56,13 +62,13 @@ export default function Home() {
     });
   };
 
-  // Rebuild option arrays whenever the language changes so labels stay localized.
+  // Each voice now has a UNIQUE value so the backend can tell them apart.
   const modelOptions = useMemo(
     () => [
-      { value: "khmer-cambodia", label: "Soriyan" },
-      { value: "multilingual", label: "Male Report" },  
-      { value: "multilingual", label: "Stories Teller" },
-      { value: "multilingual", label: "Sokky" },
+      { value: "soriyan", label: "Soriyan" },          // VITS2 path (/generate)
+      { value: "male_report", label: "Male Report" },  // clone
+      { value: "storyteller", label: "Stories Teller" },// clone
+      { value: "sokky", label: "Sokky" },              // clone
     ],
     []
   );
@@ -121,12 +127,12 @@ export default function Home() {
     setError(null);
 
     try {
-      console.log("📝 Sending text to backend...");
+      console.log("📝 Sending text to backend... voice:", model);
 
-      const taskId =
-        model === "multilingual"
-          ? await startVoxCPMGeneration(text)
-          : await startAudioGeneration(text);
+      // Clone voices go to VoxCPM (passing which voice); Soriyan uses VITS2.
+      const taskId = VOXCPM_VOICES.has(model)
+        ? await startVoxCPMGeneration(text, model)
+        : await startAudioGeneration(text);
       console.log("✅ Task ID received:", taskId);
 
       let attempts = 0;
