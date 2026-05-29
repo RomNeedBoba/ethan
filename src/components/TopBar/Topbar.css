@@ -25,7 +25,6 @@
   color: var(--text-primary);
   margin-right: 4px;
 }
-/* Add this to your existing Topbar.css */
 
 .topbar__logo-img {
   height: 32px;
@@ -33,6 +32,7 @@
   object-fit: contain;
   display: block;
 }
+
 .topbar__title {
   font-size: 15px;
   font-weight: 700;
@@ -52,6 +52,7 @@
   place-items: center;
   transition: background 0.15s, color 0.15s;
 }
+
 .topbar__icon-btn:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
@@ -78,6 +79,7 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
+
 .topbar__lang-btn:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
@@ -91,6 +93,7 @@
 .topbar__chevron {
   transition: transform 0.15s;
 }
+
 .topbar__chevron.is-up {
   transform: rotate(180deg);
 }
@@ -121,8 +124,14 @@
 }
 
 @keyframes dropdown-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .topbar__dropdown-item {
@@ -135,32 +144,43 @@
   background: transparent;
   color: var(--text-primary);
   font-size: 13px;
+  font-weight: 500;
   font-family: inherit;
+  letter-spacing: inherit;
   border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
   transition: background 0.1s;
 }
+
 .topbar__dropdown-item:hover {
   background: var(--bg-hover);
 }
+
 .topbar__dropdown-item.is-active {
   font-weight: 600;
   color: var(--accent);
 }
+
 .topbar__dropdown-item svg {
   flex-shrink: 0;
   color: var(--text-secondary);
 }
+
 .topbar__dropdown-item.is-active svg {
   color: var(--accent);
 }
 
 /* Responsive */
 @media (max-width: 480px) {
-  .topbar__lang-label { display: none; }
-  .topbar__title { font-size: 13px; }
+  .topbar__lang-label {
+    display: none;
+  }
+  .topbar__title {
+    font-size: 13px;
+  }
 }
+
 /* Divider inside dropdown menu — separates app modes from external links */
 .topbar__dropdown-divider {
   height: 1px;
@@ -187,7 +207,11 @@ button.topbar__dropdown-item {
   border-radius: 6px;
   transition: opacity 0.15s;
 }
-.topbar__logo-btn:hover { opacity: 0.75; }
+
+.topbar__logo-btn:hover {
+  opacity: 0.75;
+}
+
 .topbar__logo-btn:focus-visible {
   outline: 2px solid var(--accent, #2563eb);
   outline-offset: 2px;
