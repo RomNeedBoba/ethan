@@ -1,7 +1,9 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import CustomSelect from "../components/CustomSelect";
 import AudioPlayer from "../components/AudioPlayer";
 import { startAudioGeneration, startVoxCPMGeneration, checkAudioStatus } from "../api/ttsApi";
+// NEW: reference-clip cloned voices use their own API + status endpoint.
+import { generateWithVoiceProfile, getTaskStatus, getVoiceProfiles } from "../api/voiceProfileApi";
 import { useTranslation } from "../i18n/LanguageContext.jsx";
 import "./Home.css";
 
@@ -19,8 +21,9 @@ const KHMER_EXAMPLES = [
 ];
 
 /**
- * Voices that run through the VoxCPM clone backend. Each `value` is the voice id
- * the backend uses to pick the matching LoRA. "soriyan" is the non-clone VITS2 path.
+ * Legacy LoRA voices that run through the VoxCPM LoRA backend (/voxcpm/generate).
+ * These are NOT reference-clip clones — keep them on the existing path so they
+ * keep working exactly as before. "soriyan" is the non-clone VITS2 path.
  */
 const VOXCPM_VOICES = new Set(["male_report", "storyteller", "sokky"]);
 
@@ -38,9 +41,25 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
   const [error, setError] = useState(null);
+  // NEW: user-created reference-clip voices (UUID ids), fetched from backend.
+  const [customVoices, setCustomVoices] = useState([]);
   const maxLength = 5000;
 
   const textareaRef = useRef(null);
+
+  // NEW: load custom cloned voices once on mount. Built-in/legacy voices are
+  // filtered out here because they are already listed as static options below.
+  useEffect(() => {
+    let alive = true;
+    getVoiceProfiles()
+      .then((list) => {
+        if (alive) setCustomVoices(list.filter((v) => !v.builtin));
+      })
+      .catch((err) => console.warn("Could not load custom voices:", err.message));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const handleClearText = () => {
     setText("");
@@ -62,15 +81,17 @@ export default function Home() {
     });
   };
 
-  // Each voice now has a UNIQUE value so the backend can tell them apart.
+  // Each voice has a UNIQUE value so the backend can tell them apart.
+  // Static options (VITS2 + legacy LoRA) first, then any custom cloned voices.
   const modelOptions = useMemo(
     () => [
-      { value: "soriyan", label: "Soriyan" },          // VITS2 path (/generate)
-      { value: "male_report", label: "Male Report" },  // clone
-      { value: "storyteller", label: "Stories Teller" },// clone
-      { value: "sokky", label: "Sokky" },              // clone
+      { value: "soriyan", label: "Soriyan" },           // VITS2 path (/generate)
+      { value: "male_report", label: "Male Report" },   // legacy LoRA clone
+      { value: "storyteller", label: "Stories Teller" },// legacy LoRA clone
+      { value: "sokky", label: "Sokky" },               // legacy LoRA clone
+      ...customVoices.map((v) => ({ value: v.id, label: v.name })), // NEW
     ],
-    []
+    [customVoices]
   );
 
   const voiceOptions = useMemo(
@@ -127,13 +148,28 @@ export default function Home() {
     setError(null);
 
     try {
-      console.log("📝 Sending text to backend... voice:", model);
+      const isVits2 = model === "soriyan";
+      const isLegacyVox = VOXCPM_VOICES.has(model); // legacy LoRA voices
+      // Anything else is a custom reference-clip profile (UUID id).
+      const isCustomProfile = !isVits2 && !isLegacyVox;
 
-      // Clone voices go to VoxCPM (passing which voice); Soriyan uses VITS2.
-      const taskId = VOXCPM_VOICES.has(model)
-        ? await startVoxCPMGeneration(text, model)
-        : await startAudioGeneration(text);
+      console.log("📝 Sending text to backend... voice:", model, { isVits2, isLegacyVox, isCustomProfile });
+
+      // Route to the correct backend.
+      let taskId;
+      if (isVits2) {
+        taskId = await startAudioGeneration(text);
+      } else if (isLegacyVox) {
+        taskId = await startVoxCPMGeneration(text, model);
+      } else {
+        const res = await generateWithVoiceProfile(model, text);
+        taskId = res.task_id; // new API returns { task_id }
+      }
       console.log("✅ Task ID received:", taskId);
+
+      // Custom profiles report status on /voice-profiles/tasks/:id, the others
+      // on the existing /status/:id endpoint.
+      const statusFn = isCustomProfile ? getTaskStatus : checkAudioStatus;
 
       let attempts = 0;
       const maxAttempts = 60;
@@ -143,7 +179,7 @@ export default function Home() {
         attempts++;
 
         console.log(`🔄 Status check attempt ${attempts}/${maxAttempts}...`);
-        const statusData = await checkAudioStatus(taskId);
+        const statusData = await statusFn(taskId);
 
         if (statusData.status === "completed") {
           const audioUrlFromServer =
@@ -161,7 +197,7 @@ export default function Home() {
         }
 
         if (statusData.status === "failed") {
-          throw new Error(t("error.backendFailed"));
+          throw new Error(statusData.error || t("error.backendFailed"));
         }
       }
 

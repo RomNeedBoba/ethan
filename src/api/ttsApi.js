@@ -133,10 +133,12 @@ export const startAudioGeneration = async (text) => {
 /**
  * Starts Sokkha (VoxCPM) audio generation
  * @param {string} text - Text to convert to speech
+ * @param {string} voice - Clone voice id ("male_report" | "storyteller" | "sokky")
  * @returns {Promise<string>} - Task ID for tracking progress
  * @throws {Error} - If validation, rate limiting, or API call fails
  */
-export const startVoxCPMGeneration = async (text) => {
+export const startVoxCPMGeneration = async (text, voice = "male_report") => {
+
   try {
     rateLimiter.enforceLimit();
     const validatedText = validateText(text);
@@ -145,7 +147,7 @@ export const startVoxCPMGeneration = async (text) => {
       const response = await fetch(`${API_BASE_URL}/voxcpm/generate`, {
         method: "POST",
         headers: getAuthHeaders(),
-        body: JSON.stringify({ text: validatedText }),
+        body: JSON.stringify({ text: validatedText, voice }),
         signal: AbortSignal.timeout(10000),
       });
 
