@@ -177,7 +177,7 @@ export const startVoxCPMGeneration = async (text, voice = "male_report") => {
     }
 
     rateLimiter.recordRequest();
-    console.log("✅ Sokkha generation started. Task ID:", data.task_id);
+    console.log("✅ Sokkha generation started. Task ID:", data.task_id);  
 
     return data.task_id;
   } catch (error) {

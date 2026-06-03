@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Document, Page } from "react-pdf";
 import { t } from "./strings.js";
+import { normalizeKhmer } from "./normalizeKhmer.js";
 import "./PdfViewer.css";
 
 // react-pdf needs its text-layer and annotation-layer styles
@@ -89,7 +90,8 @@ export default function PdfViewer({ language, onGenerate }) {
         setSelection(null);
         return;
       }
-      const text = sel.toString().trim();
+      const raw = sel.toString();
+      const text = normalizeKhmer(raw);
       if (text.length < MIN_SELECTION_LENGTH) {
         setSelection(null);
         return;
