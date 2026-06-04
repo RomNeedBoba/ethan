@@ -4,6 +4,8 @@ import AudioPlayer from "../components/AudioPlayer";
 import { startAudioGeneration, startVoxCPMGeneration, checkAudioStatus } from "../api/ttsApi";
 // NEW: reference-clip cloned voices use their own API + status endpoint.
 import { generateWithVoiceProfile, getTaskStatus, getVoiceProfiles } from "../api/voiceProfileApi";
+// NEW: VoxCPM2 voices live on a SEPARATE server (synchronous, returns audio directly).
+import { generateVoxCPM2Audio } from "../api/voxcpm2Api";
 import { useTranslation } from "../i18n/LanguageContext.jsx";
 import "./Home.css";
 
@@ -26,6 +28,18 @@ const KHMER_EXAMPLES = [
  * keep working exactly as before. "soriyan" is the non-clone VITS2 path.
  */
 const VOXCPM_VOICES = new Set(["male_report", "storyteller", "sokky"]);
+
+/**
+ * NEW VoxCPM2 voices. These run on a DIFFERENT server (VITE_VOXCPM2_BASE_URL)
+ * and return audio synchronously — no task id, no polling. The key is the UI
+ * option value; the value is the backend voice id. Legacy paths are untouched.
+ *   Model A = Stories Teller -> speaker_a
+ *   Model B = Male           -> speaker_b
+ */
+const VOXCPM2_MODELS = {
+  model_a: "speaker_a",
+  model_b: "speaker_b",
+};
 
 /**
  * Home Component - Main TTS Interface.
@@ -89,6 +103,8 @@ export default function Home() {
       { value: "male_report", label: "Male Report" },   // legacy LoRA clone
       { value: "storyteller", label: "Stories Teller" },// legacy LoRA clone
       { value: "sokky", label: "Sokky" },               // legacy LoRA clone
+      { value: "model_a", label: "Stories Teller (Model A)" }, // NEW VoxCPM2 server
+      { value: "model_b", label: "Male (Model B)" },           // NEW VoxCPM2 server
       ...customVoices.map((v) => ({ value: v.id, label: v.name })), // NEW
     ],
     [customVoices]
@@ -148,6 +164,17 @@ export default function Home() {
     setError(null);
 
     try {
+      // NEW: VoxCPM2 server returns audio directly — no task id, no polling.
+      // Handle it first and bail out; the legacy flow below is untouched.
+      if (model in VOXCPM2_MODELS) {
+        const voice = VOXCPM2_MODELS[model];
+        console.log("📝 Sending text to VoxCPM2 server... voice:", voice);
+        const url = await generateVoxCPM2Audio(text, voice);
+        console.log("✅ VoxCPM2 audio ready:", url);
+        setAudioUrl(url);
+        return; // finally{} still runs and resets isGenerating
+      }
+
       const isVits2 = model === "soriyan";
       const isLegacyVox = VOXCPM_VOICES.has(model); // legacy LoRA voices
       // Anything else is a custom reference-clip profile (UUID id).
