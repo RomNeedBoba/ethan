@@ -27,7 +27,7 @@ const KHMER_EXAMPLES = [
  * These are NOT reference-clip clones — keep them on the existing path so they
  * keep working exactly as before. "soriyan" is the non-clone VITS2 path.
  */
-const VOXCPM_VOICES = new Set(["male_report", "storyteller", "sokky"]);
+const VOXCPM_VOICES = new Set(["sokky"]);
 
 /**
  * NEW VoxCPM2 voices. These run on a DIFFERENT server (VITE_VOXCPM2_BASE_URL)
@@ -100,8 +100,6 @@ export default function Home() {
   const modelOptions = useMemo(
     () => [
       { value: "soriyan", label: "Soriyan" },           // VITS2 path (/generate)
-      { value: "male_report", label: "Male Report" },   // legacy LoRA clone
-      { value: "storyteller", label: "Stories Teller" },// legacy LoRA clone
       { value: "sokky", label: "Sokky" },               // legacy LoRA clone
       { value: "model_a", label: "Stories Teller (Model A)" }, // NEW VoxCPM2 server
       { value: "model_b", label: "Male (Model B)" },           // NEW VoxCPM2 server
