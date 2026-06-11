@@ -99,10 +99,10 @@ export default function Home() {
   // Static options (VITS2 + legacy LoRA) first, then any custom cloned voices.
   const modelOptions = useMemo(
     () => [
-      { value: "soriyan", label: "Soriyan" },           // VITS2 path (/generate)
-      { value: "sokky", label: "Sokky" },               // legacy LoRA clone
-      { value: "model_a", label: "Stories Teller (Model A)" }, // NEW VoxCPM2 server
-      { value: "model_b", label: "Male (Model B)" },           // NEW VoxCPM2 server
+      { value: "soriyan", label: "Women V1" },          // VITS2 path (/generate)
+      { value: "sokky", label: "Men V1" },              // legacy LoRA clone
+      { value: "model_a", label: "Women V2" },          // NEW VoxCPM2 server (storyteller)
+      { value: "model_b", label: "Men V2" },            // NEW VoxCPM2 server (reporter)
       ...customVoices.map((v) => ({ value: v.id, label: v.name })), // NEW
     ],
     [customVoices]
